@@ -28,3 +28,22 @@ To view a previous task
 
 Or to view all tasks that have been done or are in progress:
     ./tcatch view --all
+
+
+How it works
+-----------------------------------------------------------------------
+
+Time Catcher creates a .tc directory within the home folder. This is
+where all information about the tasks worked on is stored. Whenever you 
+create a task, a new directory with the format of YYYYMMDD is created
+in the .tc directory. This is where all the current tasks worked on for
+the day are stored.
+
+
+Compiling and verifying the program
+-----------------------------------------------------------------------
+
+Running make should create the program. To verify 0 memory leaks:
+
+    valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch
+ 
