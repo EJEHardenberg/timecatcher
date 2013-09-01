@@ -1,11 +1,12 @@
 tcatch: tc.o
 	cc tc.o tc-dir.o -o tcatch
+	rm *.o
 
-tc.o: tc-init.c tc-dir.o
-	cc -c tc-init.c -o tc.o -ansi -pedantic -Wall -Wextra -Werror -g
+tc.o: src/tc-init.c tc-dir.o
+	cc -c src/tc-init.c -o tc.o -ansi -pedantic -Wall -Wextra -Werror -g -I ./headers
 
-tc-dir.o: tc-directory.c tc-directory.h
-	cc -c tc-directory.c -o tc-dir.o -ansi -pedantic -Wall -Wextra -Werror -g
+tc-dir.o: src/tc-directory.c headers/tc-directory.h
+	cc -c src/tc-directory.c -o tc-dir.o -ansi -pedantic -Wall -Wextra -Werror -g -I ./headers
 
 clean:
-	rm  tcatch tc-dir.o
+	rm  tcatch *.o
