@@ -6,6 +6,7 @@ and to generate simple tables of information for processing. The usage
 is simple. 
 
 To begin a task quickly, simply run:
+
     ./tcatch start <task title>
 
 To add information about the task you're currently working on, it's
