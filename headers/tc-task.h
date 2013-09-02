@@ -11,6 +11,7 @@
 	#include <openssl/sha.h>
 	#include <stdio.h>
 	#include <string.h>
+	#include <stdlib.h>
 
 	struct tc_task {
 		time_t startTime;

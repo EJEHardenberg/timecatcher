@@ -30,6 +30,20 @@ void _find_current_task(struct tc_task * taskStruct){
 
 /*}*/
 
+void _tc_taskName_to_Hash(char * taskName, char  * fileHashName){
+	unsigned char hash[SHA_DIGEST_LENGTH];
+	char tempHashName[TC_MAX_BUFF];
+	int looper;
+
+	SHA1((const unsigned char*)taskName,strlen(taskName),hash);
+	tempHashName[0] = '\0';
+	for(looper = 0; looper < 20; ++looper)
+		sprintf(tempHashName,"%s%02x",tempHashName,hash[looper]);
+	tempHashName[looper] = '\0';
+	
+	strcpy(fileHashName,tempHashName);
+}
+
 void _tc_task_write(struct tc_task structToWrite, char taskParentDirectory[]){
 	/* Write the task out in a useful format */
 
@@ -47,21 +61,22 @@ void _tc_task_write(struct tc_task structToWrite, char taskParentDirectory[]){
 		-- ideas for later implementation use info hash for future as info file
 		name and then store individual info added to task at each sequence --
 	*/
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	char fileHashName[25]; /* hash is 20 characters .seq is 4 more \0 is 1 more*/
-	int looper;
+	char * fileHashName; /* hash is 20 characters .seq is 4 more \0 is 1 more*/
+	fileHashName = malloc(25*sizeof(char));
+	if( fileHashName == NULL ){
+		fprintf(stderr, "%s\n", "Could not allocate memory for file hash string.");
+		exit(1);
+	}
+	fileHashName[0] = '\0';
 
 	printf("Working in: %s\n",taskParentDirectory );
-
-	/* Hash the task name */
-	SHA1((const unsigned char*)structToWrite.taskName,strlen(structToWrite.taskName),hash);
-
-	fileHashName[0] = '\0';
-	for(looper = 0; looper < 20; ++looper)
-		sprintf(fileHashName,"%s%02x",fileHashName,hash[looper]);
-
+	
+	_tc_taskName_to_Hash(structToWrite.taskName,fileHashName);
+	
 	sprintf(fileHashName,"%s.seq",fileHashName);
 
 	printf("%s\n", fileHashName);
+
+	free(fileHashName);
 	
 }
