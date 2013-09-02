@@ -28,4 +28,11 @@
 	void _tc_task_write(struct tc_task structToWrite, char taskParentDirectory[]);
 	void _find_current_task(struct tc_task * taskStruct);
 
+	#ifndef TRUE
+		#define TRUE 1
+	#endif
+	#ifndef FALSE
+		#define FALSE 0
+	#endif
+
 #endif

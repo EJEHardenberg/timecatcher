@@ -44,7 +44,7 @@ void _tc_taskName_to_Hash(char * taskName, char  * fileHashName){
 	strcpy(fileHashName,tempHashName);
 }
 
-void _tc_task_write(struct tc_task structToWrite, char taskParentDirectory[]){
+void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 	/* Write the task out in a useful format */
 
 	/* The format of a task file name is as follows:
@@ -61,22 +61,116 @@ void _tc_task_write(struct tc_task structToWrite, char taskParentDirectory[]){
 		-- ideas for later implementation use info hash for future as info file
 		name and then store individual info added to task at each sequence --
 	*/
-	char * fileHashName; /* hash is 20 characters .seq is 4 more \0 is 1 more*/
-	fileHashName = malloc(25*sizeof(char));
-	if( fileHashName == NULL ){
+	char taskSequencePath[TC_MAX_BUFF]; 
+	char taskInfoPath[TC_MAX_BUFF];
+	char * fileHash;
+	int timeToWrite;
+	time_t rawtime;
+	struct tm * timeinfo;
+	char currentDate[TC_MAX_BUFF/2];
+	char indexFilePath[TC_MAX_BUFF];
+	FILE * fp;
+
+	fileHash = malloc(25*sizeof(char)); /* hash is 20 characters .seq is 4 more \0 is 1 more */
+	if( fileHash == NULL ){
 		fprintf(stderr, "%s\n", "Could not allocate memory for file hash string.");
 		exit(1);
 	}
-	fileHashName[0] = '\0';
-
-	printf("Working in: %s\n",taskParentDirectory );
+	fileHash[0] = '\0';
 	
-	_tc_taskName_to_Hash(structToWrite.taskName,fileHashName);
+	_tc_taskName_to_Hash(structToWrite.taskName,fileHash);
 	
-	sprintf(fileHashName,"%s.seq",fileHashName);
+	sprintf(taskSequencePath,"%s/%s/%s.seq",tcHomeDirectory,TC_TASK_DIR,fileHash);
+	sprintf(taskInfoPath,"%s/%s/%s.info",tcHomeDirectory,TC_TASK_DIR,fileHash);
 
-	printf("%s\n", fileHashName);
+	/* If the info file does not exist create it */
+	if((_tc_file_exists(taskInfoPath)) == FALSE){
+		fp = fopen(taskInfoPath, "w"); /* Note that w overwrites so no security hole here*/
+		if (!fp) {    		
+			fprintf(stderr,"%s\n", "Could not create task information file. Please check permissions");
+			free(fileHash);
+			exit(1);    		
+    	} else {
+    		/* Write out information to the file if there is any*/
+    		fprintf(fp, "%s\n", structToWrite.taskName);
+    		if(structToWrite.taskInfo != NULL)
+    			fprintf(fp, "%s\n", structToWrite.taskInfo);
+    		fflush(fp);
+    		fclose(fp);
+    	}
+	}else{
+		fp = fopen(taskInfoPath, "a+");
+		if (!fp) {    		
+			fprintf(stderr,"%s\n", "Could not create task sequence file. Please check permissions");
+			free(fileHash);
+			exit(1);    		
+    	} else {
+    		/* Write out information to the file if there is any*/
+    		if(structToWrite.taskInfo != NULL)
+    			fprintf(fp, "%s\n", structToWrite.taskInfo);
+    		fflush(fp);
+    		fclose(fp);
+    	}
+	}
 
-	free(fileHashName);
+	/*If the .seq file doesn't exist create it*/
+	if((_tc_file_exists(taskSequencePath))==FALSE){
+		fp = fopen(taskSequencePath, "w"); /* Note that w overwrites so no security hole here*/
+		if (!fp) {
+			fprintf(stderr,"%s\n", "Could not create task sequence file. Please check permissions");
+			free(fileHash);
+			exit(1);    		
+		}
+	}else{
+		fp = fopen(taskSequencePath, "a+"); /* Note that w overwrites so no security hole here*/
+		if (!fp) {
+			fprintf(stderr,"%s\n", "Could not create task sequence file. Please check permissions");
+			free(fileHash);
+			exit(1);    		
+		}
+	}
+    if(fp){
+		/* Write out information to the sequence */    		
+		switch( structToWrite.state ){
+			case TC_TASK_PAUSED:
+				timeToWrite = structToWrite.pauseTime;
+				break;
+			case TC_TASK_FINISHED:
+				timeToWrite = structToWrite.endTime;
+				break;
+			case TC_TASK_STARTED:
+			default:
+				timeToWrite = structToWrite.startTime;
+				break;
+
+		}
+		fprintf(fp, "%i %i %i\n", structToWrite.seqNum, structToWrite.state, timeToWrite);
+		fflush(fp);
+		fclose(fp);
+    }
+
+    /* Update the index file */
+    rawtime = time(0); /*If you're starting a task at the crux of midnight then maybe this will be wrong*/
+	timeinfo = localtime (&rawtime);
+	strftime(currentDate,80,"%Y%m%d",timeinfo);
+	sprintf(indexFilePath,"%s/%s/%s.index",tcHomeDirectory,TC_INDEX_DIR,currentDate);
+
+	/* We don't need to check for the index file's existence because tc-init takes care of that */
+	fp = fopen(indexFilePath, "a");
+	if(!fp) {
+		/* Weird permission problem? */
+		free(fileHash);
+		fprintf(stderr, "%s\n", "Could not open index file for appending. Exiting");
+		exit(1);
+	}
+
+	/* Append information to the index file 
+	 * This information is in the format: <task hash> <state>
+	*/
+	fprintf(fp, "%s %i\n", fileHash, structToWrite.state);
+	fflush(fp);
+	fclose(fp);
+
+	free(fileHash);
 	
 }

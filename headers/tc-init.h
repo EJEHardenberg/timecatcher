@@ -16,8 +16,11 @@
 	#define TC_ADD_INFO_COMMAND "add-info"
 	#define TC_START_COMMAND "start"
 	#define TC_FINISH_COMMAND "finish"
-	#define TRUE 1
-	#define FALSE 0
-	#define TC_INDEX_DIR "indexes"
+	#ifndef TRUE
+		#define TRUE 1
+	#endif
+	#ifndef FALSE
+		#define FALSE 0
+	#endif
 
 #endif

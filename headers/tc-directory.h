@@ -3,8 +3,9 @@
 
 	#define TC_MAX_BUFF 255
 	#define TC_DIR_PERM 0755 
+	#define TC_INDEX_DIR "indexes"
 	#define TC_CURRENT_TASK "current"
-	
+	#define TC_TASK_DIR "tasks"	
 
 	/* Prototypes */
 	const char * _tc_getHomePath();
