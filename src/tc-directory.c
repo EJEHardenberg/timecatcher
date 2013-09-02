@@ -29,9 +29,9 @@ int _tc_directoryExists(char * directoryToCheck){
 	dir = opendir(directoryToCheck);
 	if ( dir ) {
 		closedir(dir);
-		success = 1;
+		success = TRUE;
 	} else if ( ENOENT == errno ) 
-		success = 0; /* The directory doesn't exist */
+		success = FALSE; /* The directory doesn't exist */
 	else 
 		success = -1;/* Something went wrong with opening it */
 

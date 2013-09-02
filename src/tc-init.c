@@ -120,6 +120,7 @@ const char * tc_init(char tcdirectory[]){
 	struct tm * timeinfo;
 	char currentDate[TC_MAX_BUFF/2];
 	char indexFilePath[TC_MAX_BUFF];
+	char taskDirectory[TC_MAX_BUFF];
 	
 
 
@@ -130,11 +131,10 @@ const char * tc_init(char tcdirectory[]){
 	if ((success = _tc_directoryExists(tcdirectory)) == 0)
 		success = mkdir(tcdirectory,TC_DIR_PERM);
 
-	if (success == -1) 
-			fprintf(stderr,"%s\n", "Problem creating .tc directory in home folder. Please check permissions");
-
-	if (success == -1)
+	if (success == -1) {
+		fprintf(stderr,"%s\n", "Problem creating .tc directory in home folder. Please check permissions");
 		exit(1);
+	}
 
 	/* Create the index directory to store index files */
 	sprintf(indexDirectory,"%s/.tc/%s",homePath,TC_INDEX_DIR);
@@ -142,8 +142,10 @@ const char * tc_init(char tcdirectory[]){
 	if ((success = _tc_directoryExists(indexDirectory)) == 0)
 		success = mkdir(indexDirectory,TC_DIR_PERM);
 	
-	if (success == -1) 
+	if (success == -1) {
 		fprintf(stderr,"%s\n", "Could not create index directory. Please check permissions");
+		exit(1);
+	}
 
 	/* 	Now that the directory is setup correctly check for the index file */
 	rawtime = time(0);
@@ -158,7 +160,8 @@ const char * tc_init(char tcdirectory[]){
 		FILE *fp = fopen(indexFilePath, "wb");
 		if (!fp) {
     		success = -1;
-			fprintf(stderr,"%s\n", "Could not create index file. Please check permissions");    		
+			fprintf(stderr,"%s\n", "Could not create index file. Please check permissions");
+			exit(1);    		
     	} else {
     		fclose(fp);
     		success = 1;
@@ -166,9 +169,15 @@ const char * tc_init(char tcdirectory[]){
 
 	}
 
+	/* Create the tasks directory */
+	sprintf(taskDirectory,"%s/.tc/%s",homePath,TC_TASK_DIR);
+	if (( success = _tc_directoryExists(taskDirectory)) == 0)
+		success = mkdir(taskDirectory,TC_DIR_PERM);
 
-	if (success == -1)
+	if (success == -1) {
+		fprintf(stderr,"%s\n", "Could not create tasks directory. Please check permissions");
 		exit(1);
+	}
 
 	return tcdirectory;
 

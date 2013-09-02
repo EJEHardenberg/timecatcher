@@ -17,6 +17,13 @@ int main(int argc, char const *argv[]) {
 	tc_init(tcHomeDirectory);
 	taskName[0] = '\0';
 
+	/* Initialize task struct*/
+	working_task.taskName = "";
+	working_task.taskInfo = NULL;
+	working_task.state = TC_TASK_NOT_FOUND;
+	working_task.seqNum = 0;
+	working_task.startTime=working_task.pauseTime=working_task.endTime=0;
+
 	/* Determine what we've been asked to do */
 	if ( argc <= 1 ) {
 		/* Called with no arguments. Display Usage */
@@ -53,11 +60,10 @@ int main(int argc, char const *argv[]) {
 
 			/* Check if we are already working on a task */
 
-			/* Create a task and store its information */
-
-			
+			/* Create a task and store its information */			
 			working_task.taskName = taskName;
 			_tc_task_write(working_task, tcHomeDirectory);
+
 
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
 			/* Check if there is a current task */
