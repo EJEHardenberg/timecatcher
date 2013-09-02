@@ -25,9 +25,11 @@ Then a text editor will pop up and allow you to create a simple summary
 message to go along with your task.
 
 To view a previous task
+
     ./tcatch view <task title>
 
 Or to view all tasks that have been done or are in progress:
+
     ./tcatch view --all
 
 

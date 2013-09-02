@@ -10,6 +10,11 @@
 
 #include "tc-directory.h"
 #define TC_VIEW_COMMAND "view"
+#define TC_HELP_LONG "--help"
+#define TC_HELP_SHORT "-h"
+#define TC_VIEW_ALL_SHORT "-a"
+#define TC_VIEW_ALL_LONG "--all"
+
 #define TC_HELP_COMMAND "help"
 #define TC_ADD_INFO_COMMAND "add-info"
 #define TC_START_COMMAND "start"
@@ -21,13 +26,19 @@ void _tc_display_usage(const char * command);
 
 int main(int argc, char const *argv[]) {
 	char taskParentDirectory[TC_MAX_BUFF];
+	int counter;
 
+	/* Make sure environment is proper */
+	tc_init(taskParentDirectory);
+	printf("Working in: %s\n",taskParentDirectory );
+
+	/* Determine what we've been asked to do */
 	if ( argc <= 1 ) {
 		/* Called with no arguments. Display Usage */
 		_tc_display_usage(NULL);
 	}else if ( argc == 2 ){
 		/* Called with just a command, besides view let it go to usage*/
-		if ( strcasecmp(argv[1], TC_VIEW_COMMAND) == 0 ) {
+		if ( strcasecmp( argv[1], TC_VIEW_COMMAND) == 0 ) {
 			;
 		} else {
 			_tc_display_usage(argv[1]);
@@ -35,20 +46,57 @@ int main(int argc, char const *argv[]) {
 
 	}else{
 		/* Called with command and arguments of some kind*/
+		for(counter = 0; counter < argc; ++counter) {
+			/* Check for a --help or -h flag */
+			if(argv[counter][0] == '-'){
+				if( strcasecmp( argv[counter], TC_HELP_SHORT ) == 0 || strcasecmp( argv[counter], TC_HELP_LONG ) == 0 ) {
+					_tc_display_usage(argv[1]);
+				}
+			}
+		}
+		/* No help requested try to parse the command*/
+		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
+			/* Check for all flag in any position*/
+			for( counter = 0; counter < argc; ++counter ){
+				if( strcasecmp( argv[counter], TC_VIEW_ALL_SHORT ) == 0 || strcasecmp( argv[counter], TC_VIEW_ALL_LONG ) == 0 ) {
+					; /* Show all tasks */
+					exit(1);
+				}
+			}
+			/* If we made it this far, then we can assume we need to resolve a task name */
+		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+			/* Check if we are already working on a task */
+
+			/* Create a task and store its information */
+		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
+			/* Check if there is a current task */
+
+			/* Retrieve the current task */
+
+			/* Add information to the task */
+
+			/* Save the task */
+		}else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
+			/* Check if there's a current task */
+
+			/* Retrieve the current task */
+
+			/* Finish the task */
+
+			/* Save the task */
+		}
 	}
-
-	tc_init(taskParentDirectory);
-	printf("%s\n",taskParentDirectory );
-
-	/* Determine what we're asked to do */
-
-
 
 	return 0;
 }
 
 void _tc_display_usage(const char * command){
 	const char * general_usage;
+	const char * view_usage;
+	const char * start_usage;
+	const char * add_info_usage;
+	const char * finish_usage;
+
 	general_usage = ""
 	"tcatch <command> [<args>]\n"
 	"\n"
@@ -61,16 +109,48 @@ void _tc_display_usage(const char * command){
 	"See tcatch help <command> for information on a specific command\n"
 	"\n";
 
-	if( command == NULL )
+	view_usage = ""
+	"tcatch view [--help | -h][ --all | -a][ <task name> ]\n"
+	"\n"
+	"Running view with no arguments will display the current tasks information\n"
+	"If there is no current task, tcatch will let you know.\n"
+	"To see this help dialog you can run view with the --help flag\n"
+	"To view information on all tasks, use the --all flag and if you want to see\n"
+	"information on a single specific task, use view <task name>\n"
+	;
+	start_usage = ""
+	"tcatch start [--help | -h] <task name>\n"
+	"\n"
+	"To see this help text use --help or -h. \n"
+	"To create a new task to be worked on simple use tcatch start and then the \n"
+	"task name\n";
+	add_info_usage = ""
+	"tcatch add-info [--help | -h] <information>\n"
+	"\n"
+	"The add-info command appends a given information string to the current task.\n"
+	"If there is no current task, this will fail. You can see this help text with\n"
+	"--help or -h.\n"
+	;
+	finish_usage = ""
+	"tcatch finish <task name>\n"
+	"\n"
+	"Finish a task identified by <task name>. Finishing a task marks the task as \n"
+	"complete and creates the neccesary information to calculate the total time \n"
+	"spent on the task itself. This information can be seen later with the view \n"
+	"command. \n"
+	"To See this help dialog pass the --help or -h flag.\n"
+	;
+
+	if( command == NULL || strcasecmp(command, TC_HELP_COMMAND) == 0 )
 		printf("%s", general_usage);
 	else if( strcasecmp(command, TC_VIEW_COMMAND ) == 0) { 
-		;
+		printf("%s\n", view_usage);
 	}else if( strcasecmp(command, TC_START_COMMAND ) ==0 ) {
-		;
+		printf("%s\n", start_usage);
 	}else if ( strcasecmp(command, TC_ADD_INFO_COMMAND ) == 0 ) {
-		;
+		printf("%s\n", add_info_usage);
 	}else if ( strcasecmp(command, TC_FINISH_COMMAND ) == 0 ) {
-		;
+		printf("%s\n", finish_usage);
 	}else{
 		fprintf(stderr,"%s\n\n", "Command not recognized, usage:");
 		_tc_display_usage(NULL);
