@@ -18,5 +18,6 @@
 	#define TC_FINISH_COMMAND "finish"
 	#define TRUE 1
 	#define FALSE 0
+	#define TC_INDEX_DIR "indexes"
 
 #endif

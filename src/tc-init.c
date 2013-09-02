@@ -110,15 +110,16 @@ void _tc_display_usage(const char * command){
 
 
 
-const char * tc_init(char taskParentDirectory[]){
+const char * tc_init(char tcdirectory[]){
 	/* Create the .tc directory if it does not exist */
 	const char * homePath;
-	char tcdirectory[TC_MAX_BUFF];
+	char indexDirectory[TC_MAX_BUFF];
 	int success;
 	/* Time Variables */
 	time_t rawtime;
 	struct tm * timeinfo;
 	char currentDate[TC_MAX_BUFF/2];
+	char indexFilePath[TC_MAX_BUFF];
 	
 
 
@@ -135,26 +136,40 @@ const char * tc_init(char taskParentDirectory[]){
 	if (success == -1)
 		exit(1);
 
-	/* Create the directory for the current days tasks */
+	/* Create the index directory to store index files */
+	sprintf(indexDirectory,"%s/.tc/%s",homePath,TC_INDEX_DIR);
+
+	if ((success = _tc_directoryExists(indexDirectory)) == 0)
+		success = mkdir(indexDirectory,TC_DIR_PERM);
+	
+	if (success == -1) 
+		fprintf(stderr,"%s\n", "Could not create index directory. Please check permissions");
+
+	/* 	Now that the directory is setup correctly check for the index file */
 	rawtime = time(0);
 	timeinfo = localtime (&rawtime);
 	strftime(currentDate,80,"%Y%m%d",timeinfo);
-	sprintf(taskParentDirectory,"%s/.tc/%s",homePath,currentDate);
+	sprintf(indexFilePath,"%s/.tc/%s/%s.index",homePath,TC_INDEX_DIR,currentDate);
+	if ( _tc_file_exists(indexFilePath) ){
+		/* It exists so we'll have it later on to use */
+		success = 1;
+	}else{
+		/* Create the index file */
+		FILE *fp = fopen(indexFilePath, "wb");
+		if (!fp) {
+    		success = -1;
+			fprintf(stderr,"%s\n", "Could not create index file. Please check permissions");    		
+    	} else {
+    		fclose(fp);
+    		success = 1;
+    	}
 
-	if ((success = _tc_directoryExists(taskParentDirectory)) == 0)
-		success = mkdir(taskParentDirectory,TC_DIR_PERM);
-	
-	if (success == -1) 
-		fprintf(stderr,"%s\n", "Could not create task directory for current date. Please check permissions");
+	}
 
-	/* 	Now that the directory is setup correctly Do one final check and 
-		then return the path to the directory we'll be writing to for 
-		the session.
-	*/
 
 	if (success == -1)
 		exit(1);
 
-	return taskParentDirectory;
+	return tcdirectory;
 
 }

@@ -4,14 +4,18 @@
 
 #include "tc-init.h"
 #include "tc-directory.h"
+#include "tc-task.h"
 
 
 int main(int argc, char const *argv[]) {
-	char taskParentDirectory[TC_MAX_BUFF];
+	char tcHomeDirectory[TC_MAX_BUFF];
+	struct tc_task working_task;
+	int i;
+	char taskName[TC_MAX_BUFF];
 
 	/* Make sure environment is proper */
-	tc_init(taskParentDirectory);
-	printf("Working in: %s\n",taskParentDirectory );
+	tc_init(tcHomeDirectory);
+	taskName[0] = '\0';
 
 	/* Determine what we've been asked to do */
 	if ( argc <= 1 ) {
@@ -42,9 +46,19 @@ int main(int argc, char const *argv[]) {
 
 
 		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+			/* Create the human readable name of the task */
+			strcpy(taskName,argv[2]);
+			for(i=3; i < argc; ++i)
+				sprintf(taskName,"%s %s",taskName,argv[i]);
+
 			/* Check if we are already working on a task */
 
 			/* Create a task and store its information */
+
+			
+			working_task.taskName = taskName;
+			_tc_task_write(working_task, tcHomeDirectory);
+
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
 			/* Check if there is a current task */
 

@@ -2,8 +2,10 @@
 #include <wordexp.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #include "tc-directory.h"
+#include "tc-task.h"
 
 const char * _tc_getHomePath(){
 	const char * homePath;
@@ -36,3 +38,14 @@ int _tc_directoryExists(char * directoryToCheck){
 	return success;
 	
 }
+
+int _tc_file_exists(const char * filename){
+	/* Security Concern: If you check for a file's existence and then open the 
+	 * file, between the time of access checking and creation of a file someone
+	 * can create a symlink or something and cause your open to fail or open 
+	 * something that shouldn't be opened. That being said... I'm not concerned.
+	*/
+	struct stat buffer;
+	return(stat (filename, &buffer) == 0);
+}
+
