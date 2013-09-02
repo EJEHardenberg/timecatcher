@@ -28,6 +28,11 @@ int main(int argc, char const *argv[]) {
 	char taskParentDirectory[TC_MAX_BUFF];
 	int counter;
 
+	/* Make sure environment is proper */
+	tc_init(taskParentDirectory);
+	printf("Working in: %s\n",taskParentDirectory );
+
+	/* Determine what we've been asked to do */
 	if ( argc <= 1 ) {
 		/* Called with no arguments. Display Usage */
 		_tc_display_usage(NULL);
@@ -45,7 +50,7 @@ int main(int argc, char const *argv[]) {
 			/* Check for a --help or -h flag */
 			if(argv[counter][0] == '-'){
 				if( strcasecmp( argv[counter], TC_HELP_SHORT ) == 0 || strcasecmp( argv[counter], TC_HELP_LONG ) == 0 ) {
-					_tc_display_usage(argv[counter]);
+					_tc_display_usage(argv[1]);
 				}
 			}
 		}
@@ -59,15 +64,28 @@ int main(int argc, char const *argv[]) {
 				}
 			}
 			/* If we made it this far, then we can assume we need to resolve a task name */
+		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+			/* Check if we are already working on a task */
+
+			/* Create a task and store its information */
+		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
+			/* Check if there is a current task */
+
+			/* Retrieve the current task */
+
+			/* Add information to the task */
+
+			/* Save the task */
+		}else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
+			/* Check if there's a current task */
+
+			/* Retrieve the current task */
+
+			/* Finish the task */
+
+			/* Save the task */
 		}
 	}
-
-	tc_init(taskParentDirectory);
-	printf("%s\n",taskParentDirectory );
-
-	/* Determine what we're asked to do */
-
-
 
 	return 0;
 }
@@ -76,8 +94,8 @@ void _tc_display_usage(const char * command){
 	const char * general_usage;
 	const char * view_usage;
 	const char * start_usage;
-	/*const char * add_info_usage;
-	const char * finish_usage;*/
+	const char * add_info_usage;
+	const char * finish_usage;
 
 	general_usage = ""
 	"tcatch <command> [<args>]\n"
@@ -106,8 +124,22 @@ void _tc_display_usage(const char * command){
 	"To see this help text use --help or -h. \n"
 	"To create a new task to be worked on simple use tcatch start and then the \n"
 	"task name\n";
-	/*add_info_usage = "";
-	finish_usage = "";*/
+	add_info_usage = ""
+	"tcatch add-info [--help | -h] <information>\n"
+	"\n"
+	"The add-info command appends a given information string to the current task.\n"
+	"If there is no current task, this will fail. You can see this help text with\n"
+	"--help or -h.\n"
+	;
+	finish_usage = ""
+	"tcatch finish <task name>\n"
+	"\n"
+	"Finish a task identified by <task name>. Finishing a task marks the task as \n"
+	"complete and creates the neccesary information to calculate the total time \n"
+	"spent on the task itself. This information can be seen later with the view \n"
+	"command. \n"
+	"To See this help dialog pass the --help or -h flag.\n"
+	;
 
 	if( command == NULL || strcasecmp(command, TC_HELP_COMMAND) == 0 )
 		printf("%s", general_usage);
@@ -116,9 +148,9 @@ void _tc_display_usage(const char * command){
 	}else if( strcasecmp(command, TC_START_COMMAND ) ==0 ) {
 		printf("%s\n", start_usage);
 	}else if ( strcasecmp(command, TC_ADD_INFO_COMMAND ) == 0 ) {
-		;
+		printf("%s\n", add_info_usage);
 	}else if ( strcasecmp(command, TC_FINISH_COMMAND ) == 0 ) {
-		;
+		printf("%s\n", finish_usage);
 	}else{
 		fprintf(stderr,"%s\n\n", "Command not recognized, usage:");
 		_tc_display_usage(NULL);
