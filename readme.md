@@ -42,6 +42,12 @@ create a task, a new directory with the format of YYYYMMDD is created
 in the .tc directory. This is where all the current tasks worked on for
 the day are stored.
 
+Within the .tc directory is a file called current which contains
+information about the current task being worked on. The file contains
+the location of the starting as well as the ending file. The difference
+between these two files (and any pause files)  is used to calculate any
+information about the task at all.
+
 
 Compiling and verifying the program
 -----------------------------------------------------------------------

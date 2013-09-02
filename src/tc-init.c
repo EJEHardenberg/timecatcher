@@ -9,24 +9,27 @@
 #include <strings.h>
 
 #include "tc-directory.h"
+
 #define TC_VIEW_COMMAND "view"
 #define TC_HELP_LONG "--help"
 #define TC_HELP_SHORT "-h"
 #define TC_VIEW_ALL_SHORT "-a"
 #define TC_VIEW_ALL_LONG "--all"
-
 #define TC_HELP_COMMAND "help"
 #define TC_ADD_INFO_COMMAND "add-info"
 #define TC_START_COMMAND "start"
 #define TC_FINISH_COMMAND "finish"
+#define TRUE 1
+#define FALSE 0
 
 
 const char * tc_init(char taskParentDirectory[]);
 void _tc_display_usage(const char * command);
+void _tc_help_check(int argc, char const *argv[]);
+int _tc_args_flag_check(int argc, char const *argv[], char const * longFlag, char const * shortFlag);
 
 int main(int argc, char const *argv[]) {
 	char taskParentDirectory[TC_MAX_BUFF];
-	int counter;
 
 	/* Make sure environment is proper */
 	tc_init(taskParentDirectory);
@@ -46,24 +49,20 @@ int main(int argc, char const *argv[]) {
 
 	}else{
 		/* Called with command and arguments of some kind*/
-		for(counter = 0; counter < argc; ++counter) {
-			/* Check for a --help or -h flag */
-			if(argv[counter][0] == '-'){
-				if( strcasecmp( argv[counter], TC_HELP_SHORT ) == 0 || strcasecmp( argv[counter], TC_HELP_LONG ) == 0 ) {
-					_tc_display_usage(argv[1]);
-				}
-			}
-		}
+
+		/* Check for the help flag */
+		_tc_help_check(argc,argv);
+
 		/* No help requested try to parse the command*/
 		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
 			/* Check for all flag in any position*/
-			for( counter = 0; counter < argc; ++counter ){
-				if( strcasecmp( argv[counter], TC_VIEW_ALL_SHORT ) == 0 || strcasecmp( argv[counter], TC_VIEW_ALL_LONG ) == 0 ) {
-					; /* Show all tasks */
-					exit(1);
-				}
+			if( _tc_args_flag_check(argc, argv, TC_VIEW_ALL_LONG, TC_VIEW_ALL_SHORT) == TRUE ){
+				; /* Show all tasks */
+				exit(1);
 			}
 			/* If we made it this far, then we can assume we need to resolve a task name */
+
+
 		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
 			/* Check if we are already working on a task */
 
@@ -87,7 +86,33 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
-	return 0;
+	return FALSE;
+}
+
+int _tc_args_flag_check(int argc, char const *argv[], char const * longFlag, char const * shortFlag){
+	int counter;
+	for(counter = 0; counter < argc; ++counter) {
+		/* Check for a --help or -h flag */
+		if(argv[counter][0] == '-'){
+			if( strcasecmp( argv[counter], shortFlag ) == 0 || strcasecmp( argv[counter], longFlag ) == 0 ) {
+				/* Flag found */
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+void _tc_help_check(int argc, char const *argv[]){
+	int counter;
+	for(counter = 0; counter < argc; ++counter) {
+		/* Check for a --help or -h flag */
+		if(argv[counter][0] == '-'){
+			if( strcasecmp( argv[counter], TC_HELP_SHORT ) == 0 || strcasecmp( argv[counter], TC_HELP_LONG ) == 0 ) {
+				_tc_display_usage(argv[1]);
+			}
+		}
+	}
 }
 
 void _tc_display_usage(const char * command){
