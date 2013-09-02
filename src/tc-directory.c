@@ -22,6 +22,12 @@ const char * _tc_getHomePath(){
 	return homePath;
 }
 
+void _tc_getCurrentTaskPath(char * currentTaskPath){
+	const char * home;
+	home = _tc_getHomePath();
+	sprintf(currentTaskPath,"%s/.tc/%s",home,TC_CURRENT_TASK);
+}
+
 int _tc_directoryExists(char * directoryToCheck){
 	DIR * dir;
 	int success;

@@ -3,16 +3,30 @@
 
 void _find_current_task(struct tc_task * taskStruct){
 	/*Returns an error code within the taskStruct to determine success or not*/
-	const char * home;
 	char currentTaskPath[TC_MAX_BUFF];
+	char tempBuffer[TC_MAX_BUFF];
+	int storedTime;
+	FILE * fp;
 
-	home = _tc_getHomePath();
-	sprintf(currentTaskPath,"%s/%s",home,TC_CURRENT_TASK);
+	_tc_getCurrentTaskPath(currentTaskPath);
 
 	/* Check if the file exists or not */
 	if( _tc_file_exists(currentTaskPath) ){
+		/* the current task file is simply the name of the current task and its hash */
+		fp = fopen(currentTaskPath, "r");
+		if(!fp){
+			fprintf(stderr, "%s\n", "Could not open current task file. Exiting");
+			exit(1);
+		}
+
+		fgets(tempBuffer,TC_MAX_BUFF,fp);
+		strcpy(taskStruct->taskName,tempBuffer);
+
+		fgets(tempBuffer,TC_MAX_BUFF,fp); /* Read the hash, but ignore it. */
+
 		/* If the file exists we should return information about it */
-		taskStruct->state = TC_TASK_FOUND;
+		fscanf(fp, "%i %i %i\n", &taskStruct->seqNum, &taskStruct->state, &storedTime);
+		fclose(fp);
 	}else{
 		/* Return an error flag that there is no current task */
 		taskStruct->state = TC_TASK_NOT_FOUND;
@@ -20,15 +34,40 @@ void _find_current_task(struct tc_task * taskStruct){
 
 }
 
-/*void _tc_task_read(char const * taskName, struct tc_task structToFill){ */
+void _tc_task_read(char const * taskName, struct tc_task * structToFill){ 
 	/* Attempt to fill the structure with data from the file */
 
-	/* Scan the current directory for the task, if not found then look 
-	 * into previous directories (get them in order and look backwards through 
-	 * them)
-	*/
+	char currentTaskPath[TC_MAX_BUFF];
+	char taskHash[TC_MAX_BUFF];
+	FILE * fp;
 
-/*}*/
+	_tc_getCurrentTaskPath(currentTaskPath);
+
+	structToFill->taskName = (char *)taskName;
+
+	if( _tc_file_exists(currentTaskPath) ){
+		/* the current task file is simply the name of the current task and its hash */
+		fp = fopen(currentTaskPath, "r");
+		if(!fp){
+			fprintf(stderr, "%s\n", "Could not open current task file. Exiting");
+			exit(1);
+		}
+
+		fgets(structToFill->taskName,TC_MAX_BUFF,fp);
+		fgets(taskHash, TC_MAX_BUFF, fp);
+
+		fclose(fp);
+		/* Read the sequence information for the sequence number and timing info and the last state*/
+
+
+	}else{
+		/* Return an error flag that there is no current task */
+		structToFill->state = TC_TASK_NOT_FOUND;
+	}	
+
+	
+
+}
 
 void _tc_taskName_to_Hash(char * taskName, char  * fileHashName){
 	unsigned char hash[SHA_DIGEST_LENGTH];
@@ -70,6 +109,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 	char currentDate[TC_MAX_BUFF/2];
 	char indexFilePath[TC_MAX_BUFF];
 	FILE * fp;
+	char currentTaskPath[TC_MAX_BUFF];
 
 	fileHash = malloc(25*sizeof(char)); /* hash is 20 characters .seq is 4 more \0 is 1 more */
 	if( fileHash == NULL ){
@@ -168,6 +208,21 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 	 * This information is in the format: <task hash> <state>
 	*/
 	fprintf(fp, "%s %i\n", fileHash, structToWrite.state);
+	fflush(fp);
+	fclose(fp);
+
+	/* If the structure was just started then it is our current task */
+	_tc_getCurrentTaskPath(currentTaskPath);
+	fp = fopen(currentTaskPath,"w");
+	if(!fp) {
+		/* Something went wrong */
+		free(fileHash);
+		fprintf(stderr, "%s\n", "Could not open current task file for writing. Exiting");
+		exit(1);
+	}
+	fprintf(fp, "%s\n", structToWrite.taskName);
+	fprintf(fp, "%s\n", fileHash);
+	fprintf(fp, "%i %i %i\n", structToWrite.seqNum, structToWrite.state, timeToWrite);
 	fflush(fp);
 	fclose(fp);
 

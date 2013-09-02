@@ -12,13 +12,18 @@ int main(int argc, char const *argv[]) {
 	struct tc_task working_task;
 	int i;
 	char taskName[TC_MAX_BUFF];
+	time_t rawtime;
 
 	/* Make sure environment is proper */
 	tc_init(tcHomeDirectory);
 	taskName[0] = '\0';
 
 	/* Initialize task struct*/
-	working_task.taskName = "";
+	working_task.taskName = malloc(TC_MAX_BUFF*sizeof(char));
+	if(working_task.taskName == NULL){
+		fprintf(stderr, "%s\n", "Could not allocate memory for task name in working struct. Exiting");
+		exit(1);
+	}
 	working_task.taskInfo = NULL;
 	working_task.state = TC_TASK_NOT_FOUND;
 	working_task.seqNum = 0;
@@ -59,12 +64,32 @@ int main(int argc, char const *argv[]) {
 				sprintf(taskName,"%s %s",taskName,argv[i]);
 
 			/* Check if we are already working on a task */
+			_find_current_task(&working_task);
+			if(working_task.state != TC_TASK_NOT_FOUND){
+				/* If we're working on a task then no. finish it first or pause it */
+				fprintf(stderr, "\n%s\n", "There is already a task being worked on. ");
+				fprintf(stderr, "%s\n\n", "Finish the current task first or switch tasks.");
+				free(working_task.taskName);
+				exit(1);
+			}
 
 			/* Create a task and store its information */			
+			free(working_task.taskName);
 			working_task.taskName = taskName;
+			/* If we are making a task we're starting it */
+			working_task.state = TC_TASK_STARTED;
+			/* Set the start time */
+			rawtime = time(0); 
+			if(rawtime == -1){
+				fprintf(stderr, "%s\n", "Could not determine time. Exiting");
+				exit(1);
+			}
+			working_task.startTime = rawtime;
 			_tc_task_write(working_task, tcHomeDirectory);
+			
+			fprintf(stdout, "Task: %s has been started.\n", working_task.taskName);
 
-
+			/* Task write sets the new task as current automatically */
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
 			/* Check if there is a current task */
 
@@ -84,5 +109,6 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
+	
 	return FALSE;
 }
