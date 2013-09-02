@@ -10,6 +10,11 @@
 
 #include "tc-directory.h"
 #define TC_VIEW_COMMAND "view"
+#define TC_VIEW_HELP_LONG "--help"
+#define TC_VIEW_HELP_SHORT "-h"
+#define TC_VIEW_ALL_SHORT "-a"
+#define TC_VIEW_ALL_LONG "--all"
+
 #define TC_HELP_COMMAND "help"
 #define TC_ADD_INFO_COMMAND "add-info"
 #define TC_START_COMMAND "start"
@@ -27,7 +32,7 @@ int main(int argc, char const *argv[]) {
 		_tc_display_usage(NULL);
 	}else if ( argc == 2 ){
 		/* Called with just a command, besides view let it go to usage*/
-		if ( strcasecmp(argv[1], TC_VIEW_COMMAND) == 0 ) {
+		if ( strcasecmp( argv[1], TC_VIEW_COMMAND) == 0 ) {
 			;
 		} else {
 			_tc_display_usage(argv[1]);
@@ -35,6 +40,25 @@ int main(int argc, char const *argv[]) {
 
 	}else{
 		/* Called with command and arguments of some kind*/
+		if ( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
+			/* Check for a -- flag */
+			if(argv[2][0] == '-'){
+				if( strcasecmp( argv[2], TC_VIEW_HELP_SHORT ) == 0 || strcasecmp( argv[2], TC_VIEW_HELP_LONG ) == 0 ) {
+					_tc_display_usage(argv[2]);
+				}
+				/* No need for else because if we get here then we never hit the exit in usage */
+				if( strcasecmp( argv[2], TC_VIEW_ALL_SHORT ) == 0 || strcasecmp( argv[2], TC_VIEW_ALL_LONG ) == 0 ) {
+					;
+				}else{
+					/* No idea what you're trying to do here. Show usage for view */
+					fprintf(stderr, "%s\n", "Unrecognized argument to view command.");
+					_tc_display_usage(argv[2]);
+				}
+			}else{
+				/* We are trying to resolve a task name */
+				;
+			}
+		}
 	}
 
 	tc_init(taskParentDirectory);
@@ -49,6 +73,11 @@ int main(int argc, char const *argv[]) {
 
 void _tc_display_usage(const char * command){
 	const char * general_usage;
+	const char * view_usage;
+	/*const char * start_usage;
+	const char * add_info_usage;
+	const char * finish_usage;*/
+
 	general_usage = ""
 	"tcatch <command> [<args>]\n"
 	"\n"
@@ -61,10 +90,23 @@ void _tc_display_usage(const char * command){
 	"See tcatch help <command> for information on a specific command\n"
 	"\n";
 
-	if( command == NULL )
+	view_usage = ""
+	"tcatch view [--help | -help][ --all | -a][ <task name> ]\n"
+	"\n"
+	"Running view with no arguments will display the current tasks information\n"
+	"If there is no current task, tcatch will let you know.\n"
+	"To see this help dialog you can run view with the --help flag\n"
+	"To view information on all tasks, use the --all flag and if you want to see\n"
+	"information on a single specific task, use view <task name>\n"
+	;
+	/*start_usage = "";
+	add_info_usage = "";
+	finish_usage = "";*/
+
+	if( command == NULL || strcasecmp(command, TC_HELP_COMMAND) == 0 )
 		printf("%s", general_usage);
 	else if( strcasecmp(command, TC_VIEW_COMMAND ) == 0) { 
-		;
+		printf("%s\n", view_usage);
 	}else if( strcasecmp(command, TC_START_COMMAND ) ==0 ) {
 		;
 	}else if ( strcasecmp(command, TC_ADD_INFO_COMMAND ) == 0 ) {
