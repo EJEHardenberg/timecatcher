@@ -10,8 +10,8 @@
 
 #include "tc-directory.h"
 #define TC_VIEW_COMMAND "view"
-#define TC_VIEW_HELP_LONG "--help"
-#define TC_VIEW_HELP_SHORT "-h"
+#define TC_HELP_LONG "--help"
+#define TC_HELP_SHORT "-h"
 #define TC_VIEW_ALL_SHORT "-a"
 #define TC_VIEW_ALL_LONG "--all"
 
@@ -26,6 +26,7 @@ void _tc_display_usage(const char * command);
 
 int main(int argc, char const *argv[]) {
 	char taskParentDirectory[TC_MAX_BUFF];
+	int counter;
 
 	if ( argc <= 1 ) {
 		/* Called with no arguments. Display Usage */
@@ -40,24 +41,24 @@ int main(int argc, char const *argv[]) {
 
 	}else{
 		/* Called with command and arguments of some kind*/
-		if ( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
-			/* Check for a -- flag */
-			if(argv[2][0] == '-'){
-				if( strcasecmp( argv[2], TC_VIEW_HELP_SHORT ) == 0 || strcasecmp( argv[2], TC_VIEW_HELP_LONG ) == 0 ) {
-					_tc_display_usage(argv[2]);
+		for(counter = 0; counter < argc; ++counter) {
+			/* Check for a --help or -h flag */
+			if(argv[counter][0] == '-'){
+				if( strcasecmp( argv[counter], TC_HELP_SHORT ) == 0 || strcasecmp( argv[counter], TC_HELP_LONG ) == 0 ) {
+					_tc_display_usage(argv[counter]);
 				}
-				/* No need for else because if we get here then we never hit the exit in usage */
-				if( strcasecmp( argv[2], TC_VIEW_ALL_SHORT ) == 0 || strcasecmp( argv[2], TC_VIEW_ALL_LONG ) == 0 ) {
-					;
-				}else{
-					/* No idea what you're trying to do here. Show usage for view */
-					fprintf(stderr, "%s\n", "Unrecognized argument to view command.");
-					_tc_display_usage(argv[2]);
-				}
-			}else{
-				/* We are trying to resolve a task name */
-				;
 			}
+		}
+		/* No help requested try to parse the command*/
+		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
+			/* Check for all flag in any position*/
+			for( counter = 0; counter < argc; ++counter ){
+				if( strcasecmp( argv[counter], TC_VIEW_ALL_SHORT ) == 0 || strcasecmp( argv[counter], TC_VIEW_ALL_LONG ) == 0 ) {
+					; /* Show all tasks */
+					exit(1);
+				}
+			}
+			/* If we made it this far, then we can assume we need to resolve a task name */
 		}
 	}
 
@@ -74,8 +75,8 @@ int main(int argc, char const *argv[]) {
 void _tc_display_usage(const char * command){
 	const char * general_usage;
 	const char * view_usage;
-	/*const char * start_usage;
-	const char * add_info_usage;
+	const char * start_usage;
+	/*const char * add_info_usage;
 	const char * finish_usage;*/
 
 	general_usage = ""
@@ -91,7 +92,7 @@ void _tc_display_usage(const char * command){
 	"\n";
 
 	view_usage = ""
-	"tcatch view [--help | -help][ --all | -a][ <task name> ]\n"
+	"tcatch view [--help | -h][ --all | -a][ <task name> ]\n"
 	"\n"
 	"Running view with no arguments will display the current tasks information\n"
 	"If there is no current task, tcatch will let you know.\n"
@@ -99,8 +100,13 @@ void _tc_display_usage(const char * command){
 	"To view information on all tasks, use the --all flag and if you want to see\n"
 	"information on a single specific task, use view <task name>\n"
 	;
-	/*start_usage = "";
-	add_info_usage = "";
+	start_usage = ""
+	"tcatch start [--help | -h] <task name>\n"
+	"\n"
+	"To see this help text use --help or -h. \n"
+	"To create a new task to be worked on simple use tcatch start and then the \n"
+	"task name\n";
+	/*add_info_usage = "";
 	finish_usage = "";*/
 
 	if( command == NULL || strcasecmp(command, TC_HELP_COMMAND) == 0 )
@@ -108,7 +114,7 @@ void _tc_display_usage(const char * command){
 	else if( strcasecmp(command, TC_VIEW_COMMAND ) == 0) { 
 		printf("%s\n", view_usage);
 	}else if( strcasecmp(command, TC_START_COMMAND ) ==0 ) {
-		;
+		printf("%s\n", start_usage);
 	}else if ( strcasecmp(command, TC_ADD_INFO_COMMAND ) == 0 ) {
 		;
 	}else if ( strcasecmp(command, TC_FINISH_COMMAND ) == 0 ) {
