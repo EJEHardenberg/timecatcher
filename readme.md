@@ -38,15 +38,19 @@ How it works
 
 Time Catcher creates a .tc directory within the home folder. This is
 where all information about the tasks worked on is stored. Whenever you 
-create a task, a new directory with the format of YYYYMMDD is created
-in the .tc directory. This is where all the current tasks worked on for
-the day are stored.
+create a task, 2 new files are created in the tasks directory. A
+sequence file (.seq) and an informational file (.info). The .info file
+stores your plain text and human readable notes about the project. The
+.seq file stores a record of starts and stops for the task. This
+information is later used to calculate a tasks length.
+
 
 Within the .tc directory is a file called current which contains
 information about the current task being worked on. The file contains
 the location of the starting as well as the ending file. The difference
 between these two files (and any pause files)  is used to calculate any
 information about the task at all.
+
 
 
 Compiling and verifying the program
