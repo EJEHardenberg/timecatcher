@@ -39,7 +39,13 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 	char currentTaskPath[TC_MAX_BUFF];
 	char taskHash[TC_MAX_BUFF];
+	char taskSequencePath[TC_MAX_BUFF];
+	char taskInfoPath[TC_MAX_BUFF];
 	FILE * fp;
+
+	int seqNum, seqState, seqTime;
+	int priorTime;
+	int runningTime;
 
 	_tc_getCurrentTaskPath(currentTaskPath);
 
@@ -50,14 +56,57 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 		fp = fopen(currentTaskPath, "r");
 		if(!fp){
 			fprintf(stderr, "%s\n", "Could not open current task file. Exiting");
-			exit(1);
+			structToFill->state = TC_TASK_FOUND;
+			return;
 		}
 
 		fgets(structToFill->taskName,TC_MAX_BUFF,fp);
 		fgets(taskHash, TC_MAX_BUFF, fp);
+		taskHash[strlen(taskHash)-1] = '\0'; /* Remove the newline */
 
 		fclose(fp);
 		/* Read the sequence information for the sequence number and timing info and the last state*/
+		/* So to tease out the information we need to read the sequence information. The start time is 
+		 * the first time in the sequence file by default, so lets open the sequence file:
+		*/
+
+		sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+		sprintf(taskInfoPath,"%s/.tc/%s/%s.info",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+
+		fp = fopen(taskSequencePath,"r");
+		if(!fp){
+			fprintf(stderr, "%s\n", "Could not open the sequence file for task. Exiting");
+			structToFill->state =  TC_TASK_FOUND;
+			return;
+		}
+
+		runningTime = 0;
+		while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
+			if (seqNum == 0) {
+				structToFill->startTime = seqTime;
+				priorTime = seqTime;
+			} else {
+				/* Calculate time spent on task */	
+				if( seqState == TC_TASK_PAUSED ) {
+					runningTime = runningTime + (seqTime - priorTime);
+				} else {
+					/* Finish state or not found or found or started */
+					priorTime = seqTime;
+				}
+			}
+		}
+
+		if(runningTime == 0 && seqState == TC_TASK_STARTED ){
+			runningTime =  time(0) - structToFill->startTime;
+		}
+
+		structToFill->state = seqState;
+		structToFill->endTime = seqTime;
+		structToFill->pauseTime = runningTime;
+
+		fclose(fp);
+
+		/* Read in the info */
 
 
 	}else{
@@ -98,7 +147,8 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 		Task Name \n
 		[Raw text added through add-info]
 		-- ideas for later implementation use info hash for future as info file
-		name and then store individual info added to task at each sequence --
+		name and then store individual info added to task at each sequence 
+		Then the view command could also show the last added piece of info! --
 	*/
 	char taskSequencePath[TC_MAX_BUFF]; 
 	char taskInfoPath[TC_MAX_BUFF];
@@ -228,4 +278,22 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 
 	free(fileHash);
 	
+}
+
+char * _tc_stateToString(int state){
+	switch(state){
+		case TC_TASK_NOT_FOUND:
+			return "Task Not Found";
+		case TC_TASK_FOUND:
+			return "Task Found";
+		case TC_TASK_FINISHED:
+			return "Task Complete";
+		case TC_TASK_PAUSED:
+			return "Task Paused";
+		case TC_TASK_STARTED:
+			return "Task In Progress";
+		default:
+			return "Corrupted State";
+
+	}
 }

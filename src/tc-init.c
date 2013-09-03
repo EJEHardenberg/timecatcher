@@ -103,9 +103,6 @@ void _tc_display_usage(const char * command){
 		fprintf(stderr,"%s\n\n", "Command not recognized, usage:");
 		_tc_display_usage(NULL);
 	}
-		
-	/* Exit when we're done with displaying usage*/
-	exit(1);
 }
 
 

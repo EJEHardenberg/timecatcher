@@ -28,6 +28,7 @@
 	void _tc_task_read(char const * taskName, struct tc_task * structToFill);
 	void _tc_task_write(struct tc_task structToWrite, char taskParentDirectory[]);
 	void _find_current_task(struct tc_task * taskStruct);
+	char * _tc_stateToString(int state);
 
 	#ifndef TRUE
 		#define TRUE 1
