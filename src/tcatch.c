@@ -5,17 +5,17 @@
 #include "tc-init.h"
 #include "tc-directory.h"
 #include "tc-task.h"
+#include "tc-view.h"
 
 
 int main(int argc, char const *argv[]) {
 	char tcHomeDirectory[TC_MAX_BUFF];
 	struct tc_task working_task;
-	int i,hoursWorked,secondsWorked,daysWorked,minutesWorked;
+	int i;
 	char taskName[TC_MAX_BUFF];
-	char * shortView;
-	char taskStartedText[TC_MAX_BUFF/2];
-	char taskEndedText[TC_MAX_BUFF/2];
+	
 	time_t rawtime;
+	int verboseFlag;
 
 	/* Make sure environment is proper */
 	tc_init(tcHomeDirectory);
@@ -27,10 +27,16 @@ int main(int argc, char const *argv[]) {
 		fprintf(stderr, "%s\n", "Could not allocate memory for task name in working struct. Exiting");
 		exit(1);
 	}
-	working_task.taskInfo = NULL;
+	working_task.taskInfo = malloc(TC_MAX_BUFF*sizeof(char));
+	if(working_task.taskInfo == NULL){
+		fprintf(stderr, "%s\n", "Could not allocate memory for task information in working struct. Exiting");
+		free(working_task.taskName);
+		exit(1);	
+	}
 	working_task.state = TC_TASK_NOT_FOUND;
 	working_task.seqNum = 0;
 	working_task.startTime=working_task.pauseTime=working_task.endTime=0;
+	
 
 	/* Determine what we've been asked to do */
 	if ( argc <= 1 ) {
@@ -38,7 +44,7 @@ int main(int argc, char const *argv[]) {
 		_tc_display_usage(NULL);
 
 	}else if ( argc == 2 ){
-		/* Called with just a command, besides view let it go to usage*/
+		/* Called with just a command, beworking_tasksides view let it go to usage*/
 		if ( strcasecmp( argv[1], TC_VIEW_COMMAND) == 0 ) {
 			/* View is the only command (so far) that renders w/ no arguments */
 			_find_current_task(&working_task);
@@ -46,6 +52,7 @@ int main(int argc, char const *argv[]) {
 				/* If we're working on a task then no. finish it first or pause it */
 				fprintf(stderr, "\n%s\n", "No current task being worked on.");
 				free(working_task.taskName);
+				free(working_task.taskInfo);
 				exit(1);
 			}
 
@@ -55,36 +62,11 @@ int main(int argc, char const *argv[]) {
 			if( working_task.state == TC_TASK_FOUND ){
 				/* Found, but not parsed correctly. */
 				free(working_task.taskName);
+				free(working_task.taskInfo);
 				exit(1);
 			}
 
-			/* Display the information 
-			 * (This is the short version! with a --verbose or something flag show info too.)
-			*/
-			shortView = ""
-			"Task Name:\t\t %s\n"
-			"Time Started: \t\t%s\n"
-			"Total Time Worked: \t%i Days %i Hours %i Minutes and %i Seconds\n"
-			"Last Time Updated: \t%s\n"
-			"Task State: \t\t%s\n\n";
-
-			/*Because endTime can be 0 and will be most of the time, take abs:*/
-			daysWorked = abs(working_task.endTime - working_task.startTime - working_task.pauseTime)/86400;
-			hoursWorked = (abs(working_task.endTime - working_task.startTime - working_task.pauseTime)-(daysWorked*86400))/3600;
-			minutesWorked = (abs(working_task.endTime - working_task.startTime - working_task.pauseTime) - (hoursWorked*3600) - (daysWorked*86400))/60;
-			secondsWorked = abs(working_task.endTime - working_task.startTime - working_task.pauseTime) - (minutesWorked*60) - (hoursWorked*3600) - (daysWorked*86400);
-
-			strftime(taskStartedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.startTime));
-
-			if(working_task.state == TC_TASK_STARTED ) {
-				/* The task is still in progress so: */
-				working_task.endTime = time(0);
-			}
-
-			 strftime(taskEndedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.endTime));
-
-			 printf(shortView, working_task.taskName, taskStartedText, daysWorked,hoursWorked,minutesWorked,secondsWorked,taskEndedText,_tc_stateToString(working_task.state));
-
+			_tc_displayView(working_task,FALSE);
 		} else {
 			_tc_display_usage(argv[1]);
 		}
@@ -96,19 +78,26 @@ int main(int argc, char const *argv[]) {
 		/* Check for the help flag */
 		_tc_help_check(argc,argv);
 
+		/* Check for verbose flag */
+		verboseFlag = _tc_args_flag_check(argc,argv,TC_VERBOSE_LONG, TC_VERBOSE_SHORT);
+
 		/* If we made it this far, then we can assume we need to resolve a task name */
 		strcpy(taskName,argv[2]);
 		for(i=3; i < argc; ++i)
-			sprintf(taskName,"%s %s",taskName,argv[i]);
+			if(argv[i][0] != '-')
+				sprintf(taskName,"%s %s",taskName,argv[i]);
+			else
+				i = argc; /*Break if we hit a flag value*/
 
 
 		/* No help requested try to parse the command*/
 		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
 			/* Check for all flag in any position*/
 			if( _tc_args_flag_check(argc, argv, TC_VIEW_ALL_LONG, TC_VIEW_ALL_SHORT) == TRUE ){
-				; /* Show all tasks */
-				free(working_task.taskName);
-				exit(1);
+				/* Show all tasks */
+				;
+			}else{
+				_tc_displayView(working_task,verboseFlag);
 			}
 			
 
@@ -120,6 +109,7 @@ int main(int argc, char const *argv[]) {
 				fprintf(stderr, "\n%s\n", "There is already a task being worked on. ");
 				fprintf(stderr, "%s\n\n", "Finish the current task first or switch tasks.");
 				free(working_task.taskName);
+				free(working_task.taskInfo);
 				exit(1);
 			}
 
@@ -132,12 +122,14 @@ int main(int argc, char const *argv[]) {
 			rawtime = time(0); 
 			if(rawtime == -1){
 				fprintf(stderr, "%s\n", "Could not determine time. Exiting");
+				free(working_task.taskInfo);
 				exit(1);
 			}
 			working_task.startTime = rawtime;
 			_tc_task_write(working_task, tcHomeDirectory);
 			
 			fprintf(stdout, "Task: %s has been started.\n", working_task.taskName);
+			free(working_task.taskInfo);
 			exit(1); /* Exit now because we don't want to free again */
 			/* Task write sets the new task as current automatically */
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
@@ -159,6 +151,7 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
+	free(working_task.taskInfo);
 	free(working_task.taskName);
 	return FALSE;
 }

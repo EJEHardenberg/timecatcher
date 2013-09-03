@@ -4,7 +4,9 @@
 void _find_current_task(struct tc_task * taskStruct){
 	/*Returns an error code within the taskStruct to determine success or not*/
 	char currentTaskPath[TC_MAX_BUFF];
+	char currentTaskInfoPath[TC_MAX_BUFF];
 	char tempBuffer[TC_MAX_BUFF];
+	char taskHash[21]; /*hash is 20, +1 for \0*/
 	int storedTime;
 	FILE * fp;
 
@@ -16,17 +18,31 @@ void _find_current_task(struct tc_task * taskStruct){
 		fp = fopen(currentTaskPath, "r");
 		if(!fp){
 			fprintf(stderr, "%s\n", "Could not open current task file. Exiting");
-			exit(1);
+			taskStruct->state = TC_TASK_FOUND;
+			return;
 		}
 
 		fgets(tempBuffer,TC_MAX_BUFF,fp);
 		strcpy(taskStruct->taskName,tempBuffer);
 
-		fgets(tempBuffer,TC_MAX_BUFF,fp); /* Read the hash, but ignore it. */
+		fgets(tempBuffer,TC_MAX_BUFF,fp); 
+		strcpy(taskHash,tempBuffer);
 
 		/* If the file exists we should return information about it */
 		fscanf(fp, "%i %i %i\n", &taskStruct->seqNum, &taskStruct->state, &storedTime);
 		fclose(fp);
+
+		/* Get information for task */
+		sprintf(currentTaskInfoPath,"%s/.tc/%s/%s.info", _tc_getHomePath(), TC_TASK_DIR, taskHash);
+		
+		/* Cheat a little bit 
+		 * It's simple, we stored the NAME of the info file into the structure, then when we want to
+		 * display the information we don't read the whole file into memory, but rather we open it
+		 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
+		 * or reading the file some buffer size at a time.for no reason.
+		*/
+		strcpy(taskStruct->taskInfo , currentTaskInfoPath);
+
 	}else{
 		/* Return an error flag that there is no current task */
 		taskStruct->state = TC_TASK_NOT_FOUND;
@@ -106,7 +122,13 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 		fclose(fp);
 
-		/* Read in the info */
+		/* Cheat a little bit 
+		 * It's simple, we stored the NAME of the info file into the structure, then when we want to
+		 * display the information we don't read the whole file into memory, but rather we open it
+		 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
+		 * or reading the file some buffer size at a time.for no reason.
+		*/
+		strcpy(structToFill->taskInfo , taskInfoPath);
 
 
 	}else{

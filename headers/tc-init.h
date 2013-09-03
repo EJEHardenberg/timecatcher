@@ -13,6 +13,8 @@
 	#define TC_VIEW_ALL_SHORT "-a"
 	#define TC_VIEW_ALL_LONG "--all"
 	#define TC_HELP_COMMAND "help"
+	#define TC_VERBOSE_SHORT "-v"
+	#define TC_VERBOSE_LONG "--verbose"
 	#define TC_ADD_INFO_COMMAND "add-info"
 	#define TC_START_COMMAND "start"
 	#define TC_FINISH_COMMAND "finish"

@@ -58,7 +58,7 @@ void _tc_display_usage(const char * command){
 	"\n";
 
 	view_usage = ""
-	"tcatch view [--help | -h][ --all | -a][ <task name> ]\n"
+	"tcatch view [--help | -h][ --all | -a][ <task name> ][--verbose | -v]\n"
 	"\n"
 	"Running view with no arguments will display the current tasks information\n"
 	"If there is no current task, tcatch will let you know.\n"
