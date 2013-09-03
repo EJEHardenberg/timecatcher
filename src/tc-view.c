@@ -38,7 +38,7 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 	/* Check for all flag in any position*/
 	if( _tc_args_flag_check(argc, argv, TC_VIEW_ALL_LONG, TC_VIEW_ALL_SHORT) == TRUE ){
 		/* Show all tasks */
-		;
+		; /* Will come back to this after the add info and finish task functions are done*/
 	}else{
 		free(working_task.taskName);
 		working_task.taskName = taskName;
