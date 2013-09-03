@@ -4,7 +4,9 @@
 void _find_current_task(struct tc_task * taskStruct){
 	/*Returns an error code within the taskStruct to determine success or not*/
 	char currentTaskPath[TC_MAX_BUFF];
+	char currentTaskInfoPath[TC_MAX_BUFF];
 	char tempBuffer[TC_MAX_BUFF];
+	char taskHash[21]; /*hash is 20, +1 for \0*/
 	int storedTime;
 	FILE * fp;
 
@@ -16,17 +18,36 @@ void _find_current_task(struct tc_task * taskStruct){
 		fp = fopen(currentTaskPath, "r");
 		if(!fp){
 			fprintf(stderr, "%s\n", "Could not open current task file. Exiting");
-			exit(1);
+			taskStruct->state = TC_TASK_FOUND;
+			return;
 		}
 
+		/*Be sure to remove the new line from the buffer*/
 		fgets(tempBuffer,TC_MAX_BUFF,fp);
+		tempBuffer[strlen(tempBuffer)-1] = '\0';
 		strcpy(taskStruct->taskName,tempBuffer);
 
-		fgets(tempBuffer,TC_MAX_BUFF,fp); /* Read the hash, but ignore it. */
+		fgets(tempBuffer,TC_MAX_BUFF,fp); 
+		tempBuffer[strlen(tempBuffer)-1] = '\0';
+		strcpy(taskHash,tempBuffer);
+
 
 		/* If the file exists we should return information about it */
 		fscanf(fp, "%i %i %i\n", &taskStruct->seqNum, &taskStruct->state, &storedTime);
 		fclose(fp);
+
+		/* Get information for task */
+		sprintf(currentTaskInfoPath,"%s/.tc/%s/%s.info", _tc_getHomePath(), TC_TASK_DIR, taskHash);
+		
+		/* Cheat a little bit 
+		 * It's simple, we stored the NAME of the info file into the structure, then when we want to
+		 * display the information we don't read the whole file into memory, but rather we open it
+		 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
+		 * or reading the file some buffer size at a time.for no reason.
+		*/
+
+		strcpy(taskStruct->taskInfo , currentTaskInfoPath);
+		
 	}else{
 		/* Return an error flag that there is no current task */
 		taskStruct->state = TC_TASK_NOT_FOUND;
@@ -37,33 +58,68 @@ void _find_current_task(struct tc_task * taskStruct){
 void _tc_task_read(char const * taskName, struct tc_task * structToFill){ 
 	/* Attempt to fill the structure with data from the file */
 
-	char currentTaskPath[TC_MAX_BUFF];
 	char taskHash[TC_MAX_BUFF];
+	char taskSequencePath[TC_MAX_BUFF];
+	char taskInfoPath[TC_MAX_BUFF];
 	FILE * fp;
 
-	_tc_getCurrentTaskPath(currentTaskPath);
+	int seqNum, seqState, seqTime;
+	int priorTime;
+	int runningTime;
+
 
 	structToFill->taskName = (char *)taskName;
+	_tc_taskName_to_Hash((char *)taskName,taskHash);
+	
+	/* Read the sequence information for the sequence number and timing info and the last state*/
+	/* So to tease out the information we need to read the sequence information. The start time is 
+	 * the first time in the sequence file by default, so lets open the sequence file:
+	*/
 
-	if( _tc_file_exists(currentTaskPath) ){
-		/* the current task file is simply the name of the current task and its hash */
-		fp = fopen(currentTaskPath, "r");
-		if(!fp){
-			fprintf(stderr, "%s\n", "Could not open current task file. Exiting");
-			exit(1);
+	sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+	sprintf(taskInfoPath,"%s/.tc/%s/%s.info",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+
+	fp = fopen(taskSequencePath,"r");
+	if(!fp){
+		fprintf(stderr, "%s\n", "Could not find or open the sequence file for task. Exiting");
+		structToFill->state =  TC_TASK_NOT_FOUND;
+		return;
+	}
+
+	runningTime = 0;
+	while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
+		if (seqNum == 0) {
+			structToFill->startTime = seqTime;
+			priorTime = seqTime;
+		} else {
+			/* Calculate time spent on task */	
+			if( seqState == TC_TASK_PAUSED ) {
+				runningTime = runningTime + (seqTime - priorTime);
+			} else {
+				/* Finish state or not found or found or started */
+				priorTime = seqTime;
+			}
 		}
+	}
 
-		fgets(structToFill->taskName,TC_MAX_BUFF,fp);
-		fgets(taskHash, TC_MAX_BUFF, fp);
+	if(runningTime == 0 && seqState == TC_TASK_STARTED ){
+		runningTime =  time(0) - structToFill->startTime;
+	}
 
-		fclose(fp);
-		/* Read the sequence information for the sequence number and timing info and the last state*/
+	structToFill->state = seqState;
+	structToFill->endTime = seqTime;
+	structToFill->pauseTime = runningTime;
 
+	fclose(fp);
 
-	}else{
-		/* Return an error flag that there is no current task */
-		structToFill->state = TC_TASK_NOT_FOUND;
-	}	
+	/* Cheat a little bit 
+	 * It's simple, we stored the NAME of the info file into the structure, then when we want to
+	 * display the information we don't read the whole file into memory, but rather we open it
+	 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
+	 * or reading the file some buffer size at a time.for no reason.
+	*/
+	strcpy(structToFill->taskInfo , taskInfoPath);
+	
 
 	
 
@@ -98,7 +154,8 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 		Task Name \n
 		[Raw text added through add-info]
 		-- ideas for later implementation use info hash for future as info file
-		name and then store individual info added to task at each sequence --
+		name and then store individual info added to task at each sequence 
+		Then the view command could also show the last added piece of info! --
 	*/
 	char taskSequencePath[TC_MAX_BUFF]; 
 	char taskInfoPath[TC_MAX_BUFF];
@@ -228,4 +285,22 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 
 	free(fileHash);
 	
+}
+
+char * _tc_stateToString(int state){
+	switch(state){
+		case TC_TASK_NOT_FOUND:
+			return "Task Not Found";
+		case TC_TASK_FOUND:
+			return "Task Found";
+		case TC_TASK_FINISHED:
+			return "Task Complete";
+		case TC_TASK_PAUSED:
+			return "Task Paused";
+		case TC_TASK_STARTED:
+			return "Task In Progress";
+		default:
+			return "Corrupted State";
+
+	}
 }
