@@ -97,7 +97,18 @@ int main(int argc, char const *argv[]) {
 				/* Show all tasks */
 				;
 			}else{
+				free(working_task.taskName);
+				working_task.taskName = taskName;
+				_tc_task_read(taskName,&working_task);
+
+				if( working_task.state == TC_TASK_NOT_FOUND ){
+					/* Found, but not parsed correctly. */
+					free(working_task.taskInfo);
+					exit(1);
+				}
 				_tc_displayView(working_task,verboseFlag);
+				free(working_task.taskInfo);
+				exit(1);
 			}
 			
 
@@ -151,7 +162,9 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
-	free(working_task.taskInfo);
-	free(working_task.taskName);
+	if(working_task.taskInfo != NULL)
+		free(working_task.taskInfo);
+	if(working_task.taskName != NULL)
+		free(working_task.taskName);
 	return FALSE;
 }
