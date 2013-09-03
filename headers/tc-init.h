@@ -18,6 +18,8 @@
 	#define TC_ADD_INFO_COMMAND "add-info"
 	#define TC_START_COMMAND "start"
 	#define TC_FINISH_COMMAND "finish"
+	#define TC_SWITCH_LONG "--switch"
+	#define TC_SWITCH_SHORT "-s"
 	#ifndef TRUE
 		#define TRUE 1
 	#endif

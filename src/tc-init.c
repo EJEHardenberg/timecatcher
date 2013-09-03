@@ -67,9 +67,10 @@ void _tc_display_usage(const char * command){
 	"information on a single specific task, use view <task name>\n"
 	;
 	start_usage = ""
-	"tcatch start [--help | -h] <task name>\n"
+	"tcatch start [--help | -h][--switch | -s ] <task name>\n"
 	"\n"
 	"To see this help text use --help or -h. \n"
+	"To switch from the current task to the new one pass --switch or -s. \n"
 	"To create a new task to be worked on simple use tcatch start and then the \n"
 	"task name\n";
 	add_info_usage = ""

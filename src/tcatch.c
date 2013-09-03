@@ -6,16 +6,19 @@
 #include "tc-directory.h"
 #include "tc-task.h"
 #include "tc-view.h"
+#include "tc-start.h"
 
 
 int main(int argc, char const *argv[]) {
 	char tcHomeDirectory[TC_MAX_BUFF];
+	char switchStringStorage[TC_MAX_BUFF];
+	char const * recurseBuff[3];
 	struct tc_task working_task;
 	int i;
 	char taskName[TC_MAX_BUFF];
 	
-	time_t rawtime;
-	int verboseFlag;
+	int verboseFlag,switchFlag;
+
 
 	/* Make sure environment is proper */
 	tc_init(tcHomeDirectory);
@@ -62,54 +65,42 @@ int main(int argc, char const *argv[]) {
 		/* Check for verbose flag */
 		verboseFlag = _tc_args_flag_check(argc,argv,TC_VERBOSE_LONG, TC_VERBOSE_SHORT);
 
+		/* Check for start's switch flag */
+		switchFlag = _tc_args_flag_check(argc,argv,TC_SWITCH_LONG,TC_SWITCH_SHORT);
+
 		/* If we made it this far, then we can assume we need to resolve a task name */
 		strcpy(taskName,argv[2]);
 		for(i=3; i < argc; ++i)
 			if(argv[i][0] != '-')
 				sprintf(taskName,"%s %s",taskName,argv[i]);
 			else
-				i = argc; /*Break if we hit a flag value*/
+				continue; /*Ignore any flag value*/
 
 
 		/* No help requested try to parse the command*/
-		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
-
+		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 )
 			_tc_view_with_args(working_task, verboseFlag, argc, argv, taskName);
 
-		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
-			/* Check if we are already working on a task */
-			_find_current_task(&working_task);
-			if(working_task.state != TC_TASK_NOT_FOUND){
-				/* If we're working on a task then no. finish it first or pause it */
-				fprintf(stderr, "\n%s\n", "There is already a task being worked on. ");
-				fprintf(stderr, "%s\n\n", "Finish the current task first or switch tasks.");
-				free(working_task.taskName);
+		else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+			
+			if(switchFlag == FALSE) 
+				_tc_start(working_task, taskName, tcHomeDirectory);
+			else{	
+				recurseBuff[0] = argv[0];
+				recurseBuff[1] = argv[1];
+				recurseBuff[2] = taskName;
+				/* Remove current file */
+				_tc_getCurrentTaskPath(switchStringStorage);
+				remove(switchStringStorage);
+				/* Free anything */
 				free(working_task.taskInfo);
-				exit(1);
+				free(working_task.taskName);				
+				main(3, recurseBuff);
 			}
 
-			/* Create a task and store its information */			
-			free(working_task.taskName);
-			working_task.taskName = taskName;
-			/* If we are making a task we're starting it */
-			working_task.state = TC_TASK_STARTED;
-			/* Set the start time */
-			rawtime = time(0); 
-			if(rawtime == -1){
-				fprintf(stderr, "%s\n", "Could not determine time. Exiting");
-				free(working_task.taskInfo);
-				exit(1);
-			}
-			working_task.startTime = rawtime;
-			_tc_task_write(working_task, tcHomeDirectory);
-			
-			fprintf(stdout, "Task: %s has been started.\n", working_task.taskName);
-			free(working_task.taskInfo);
-			exit(1); /* Exit now because we don't want to free again */
-			/* Task write sets the new task as current automatically */
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
 			/* Check if there is a current task */
-
+			
 			/* Retrieve the current task */
 
 			/* Add information to the task */
