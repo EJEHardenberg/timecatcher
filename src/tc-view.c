@@ -8,12 +8,14 @@ void _tc_displayView(struct tc_task working_task,int verbose){
 	char taskStartedText[TC_MAX_BUFF/2];
 	char taskEndedText[TC_MAX_BUFF/2];
 	char * shortView;
+	char infoBuffer[TC_MAX_BUFF*2];
+	FILE * fp_info;
 
 	/* Display the information 
 	 * (This is the short version! with a --verbose or something flag show info too.)
 	*/
 	shortView = ""
-	"Task Name:\t\t %s\n"
+	"Task Name:\t\t%s\n"
 	"Time Started: \t\t%s\n"
 	"Total Time Worked: \t%i Days %i Hours %i Minutes and %i Seconds\n"
 	"Last Time Updated: \t%s\n"
@@ -37,6 +39,17 @@ void _tc_displayView(struct tc_task working_task,int verbose){
 	printf(shortView, working_task.taskName, taskStartedText, daysWorked,hoursWorked,minutesWorked,secondsWorked,taskEndedText,_tc_stateToString(working_task.state));
 	if ( verbose == TRUE ) {
 		/* Transfer file to output stream */
-		;
+		fp_info = fopen(working_task.taskInfo,"r");
+		if(!fp_info){ /* We rely on taskInfo being the stored path to the file */
+			fprintf(stderr, "%s\n", "No information found for task. ");
+			return;
+		}
+		fprintf(stdout, "Task Information: \n");
+		/* This needs to be worked on! Should use fgets instead!*/
+		while((fgets(infoBuffer,TC_MAX_BUFF*2,fp_info) != NULL)){
+			fprintf(stdout, "%s", infoBuffer);
+		}
+		fprintf(stdout, "\n" );
+		fclose(fp_info);
 	}
 }
