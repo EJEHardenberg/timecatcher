@@ -22,11 +22,15 @@ void _find_current_task(struct tc_task * taskStruct){
 			return;
 		}
 
+		/*Be sure to remove the new line from the buffer*/
 		fgets(tempBuffer,TC_MAX_BUFF,fp);
+		tempBuffer[strlen(tempBuffer)-1] = '\0';
 		strcpy(taskStruct->taskName,tempBuffer);
 
 		fgets(tempBuffer,TC_MAX_BUFF,fp); 
+		tempBuffer[strlen(tempBuffer)-1] = '\0';
 		strcpy(taskHash,tempBuffer);
+
 
 		/* If the file exists we should return information about it */
 		fscanf(fp, "%i %i %i\n", &taskStruct->seqNum, &taskStruct->state, &storedTime);
@@ -41,8 +45,9 @@ void _find_current_task(struct tc_task * taskStruct){
 		 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
 		 * or reading the file some buffer size at a time.for no reason.
 		*/
-		strcpy(taskStruct->taskInfo , currentTaskInfoPath);
 
+		strcpy(taskStruct->taskInfo , currentTaskInfoPath);
+		
 	}else{
 		/* Return an error flag that there is no current task */
 		taskStruct->state = TC_TASK_NOT_FOUND;
