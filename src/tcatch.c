@@ -47,26 +47,7 @@ int main(int argc, char const *argv[]) {
 		/* Called with just a command, beworking_tasksides view let it go to usage*/
 		if ( strcasecmp( argv[1], TC_VIEW_COMMAND) == 0 ) {
 			/* View is the only command (so far) that renders w/ no arguments */
-			_find_current_task(&working_task);
-			if(working_task.state == TC_TASK_NOT_FOUND){
-				/* If we're working on a task then no. finish it first or pause it */
-				fprintf(stderr, "\n%s\n", "No current task being worked on.");
-				free(working_task.taskName);
-				free(working_task.taskInfo);
-				exit(1);
-			}
-
-			/* There is a working task so we should resolve it into information */
-			_tc_task_read(working_task.taskName,&working_task);
-
-			if( working_task.state == TC_TASK_FOUND ){
-				/* Found, but not parsed correctly. */
-				free(working_task.taskName);
-				free(working_task.taskInfo);
-				exit(1);
-			}
-
-			_tc_displayView(working_task,FALSE);
+			_tc_view_no_args(working_task);
 		} else {
 			_tc_display_usage(argv[1]);
 		}
@@ -92,25 +73,8 @@ int main(int argc, char const *argv[]) {
 
 		/* No help requested try to parse the command*/
 		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ) {
-			/* Check for all flag in any position*/
-			if( _tc_args_flag_check(argc, argv, TC_VIEW_ALL_LONG, TC_VIEW_ALL_SHORT) == TRUE ){
-				/* Show all tasks */
-				;
-			}else{
-				free(working_task.taskName);
-				working_task.taskName = taskName;
-				_tc_task_read(taskName,&working_task);
 
-				if( working_task.state == TC_TASK_NOT_FOUND ){
-					/* Found, but not parsed correctly. */
-					free(working_task.taskInfo);
-					exit(1);
-				}
-				_tc_displayView(working_task,verboseFlag);
-				free(working_task.taskInfo);
-				exit(1);
-			}
-			
+			_tc_view_with_args(working_task, verboseFlag, argc, argv, taskName);
 
 		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
 			/* Check if we are already working on a task */
