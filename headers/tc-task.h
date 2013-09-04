@@ -30,6 +30,7 @@
 	void _find_current_task(struct tc_task * taskStruct);
 	char * _tc_stateToString(int state);
 	void _tc_taskName_to_Hash(char * taskName, char  * fileHashName);
+	char *trim(char *str);
 
 	#ifndef TRUE
 		#define TRUE 1

@@ -42,7 +42,11 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 	}else{
 		free(working_task.taskName);
 		working_task.taskName = taskName;
-		_tc_task_read(taskName,&working_task);
+		if(strcmp(taskName,"")==0)
+			_find_current_task(&working_task);
+		else
+			_tc_task_read(taskName,&working_task);
+		
 
 		if( working_task.state == TC_TASK_NOT_FOUND ){
 			/* Found, but not parsed correctly. */

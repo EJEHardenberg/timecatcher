@@ -69,24 +69,21 @@ int main(int argc, char const *argv[]) {
 		switchFlag = _tc_args_flag_check(argc,argv,TC_SWITCH_LONG,TC_SWITCH_SHORT);
 
 		/* If we made it this far, then we can assume we need to resolve a task name */
-		strcpy(taskName,argv[2]);
-		for(i=3; i < argc; ++i)
+		/*strcpy(taskName,argv[2]);*/
+		for(i=2; i < argc; ++i)
 			if(argv[i][0] != '-')
 				sprintf(taskName,"%s %s",taskName,argv[i]);
 			else
 				i = argc; /*Ignore any flag value*/
 
+		/* Strip front white space or ending white space */
+		trim(taskName);
 
 		/* No help requested try to parse the command*/
-		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ){
-			if(strcmp(taskName,TC_VERBOSE_SHORT) || strcpy(taskName,TC_VERBOSE_LONG)){
-				/* Special case of view --verbose, so task name is a flag */
-				_find_current_task(&working_task);
-				strcpy(taskName, working_task.taskName);
-			}
+		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 )
 			_tc_view_with_args(working_task, verboseFlag, argc, argv, taskName);
 
-		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+		else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
 			
 			if(switchFlag == FALSE) 
 				_tc_start(working_task, taskName, tcHomeDirectory);
