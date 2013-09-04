@@ -78,7 +78,7 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 	sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
 	sprintf(taskInfoPath,"%s/.tc/%s/%s.info",_tc_getHomePath(),TC_TASK_DIR,taskHash);
-
+	printf("%s\n", taskSequencePath);
 	fp = fopen(taskSequencePath,"r");
 	if(!fp){
 		fprintf(stderr, "%s\n", "Could not find or open the sequence file for task. Exiting");
@@ -203,7 +203,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 			exit(1);    		
     	} else {
     		/* Write out information to the file if there is any*/
-    		if(structToWrite.taskInfo != NULL)
+    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,structToWrite.taskName) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);
     		fclose(fp);

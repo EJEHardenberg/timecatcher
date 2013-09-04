@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]) {
 	struct tc_task working_task;
 	int i;
 	char taskName[TC_MAX_BUFF];
-	
+	time_t rawtime;
 	int verboseFlag,switchFlag;
 
 
@@ -74,14 +74,19 @@ int main(int argc, char const *argv[]) {
 			if(argv[i][0] != '-')
 				sprintf(taskName,"%s %s",taskName,argv[i]);
 			else
-				continue; /*Ignore any flag value*/
+				i = argc; /*Ignore any flag value*/
 
 
 		/* No help requested try to parse the command*/
-		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 )
+		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ){
+			if(strcmp(taskName,TC_VERBOSE_SHORT) || strcpy(taskName,TC_VERBOSE_LONG)){
+				/* Special case of view --verbose, so task name is a flag */
+				_find_current_task(&working_task);
+				strcpy(taskName, working_task.taskName);
+			}
 			_tc_view_with_args(working_task, verboseFlag, argc, argv, taskName);
 
-		else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
 			
 			if(switchFlag == FALSE) 
 				_tc_start(working_task, taskName, tcHomeDirectory);
@@ -91,11 +96,35 @@ int main(int argc, char const *argv[]) {
 				recurseBuff[2] = taskName;
 				/* Remove current file */
 				_tc_getCurrentTaskPath(switchStringStorage);
-				remove(switchStringStorage);
-				/* Free anything */
-				free(working_task.taskInfo);
-				free(working_task.taskName);				
-				main(3, recurseBuff);
+				/* If the current task is active (not paused) then pause it */
+				_find_current_task(&working_task);
+				if(working_task.state != TC_TASK_NOT_FOUND){
+
+					if( working_task.state == TC_TASK_STARTED ){
+						/* Pause the task */
+						working_task.state = TC_TASK_PAUSED;
+						/* Set the paused time */
+						rawtime = time(0); 
+						if(rawtime == -1){
+							fprintf(stderr, "%s\n", "Could not determine time. Exiting");
+							free(working_task.taskInfo);
+							exit(1);
+						}
+						working_task.pauseTime = rawtime;
+						/* Wwrite the task out to the file */
+						_tc_task_write(working_task,tcHomeDirectory);
+					}
+
+					remove(switchStringStorage);
+					/* Free anything */
+					free(working_task.taskInfo);
+					free(working_task.taskName);				
+					main(3, recurseBuff);	
+				}else{
+					/* No current task anyway so just start a new task */
+					_tc_start(working_task, taskName, tcHomeDirectory);
+				}
+				
 			}
 
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
