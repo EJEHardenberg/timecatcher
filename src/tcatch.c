@@ -18,6 +18,7 @@ int main(int argc, char const *argv[]) {
 	char taskName[TC_MAX_BUFF];
 	time_t rawtime;
 	int verboseFlag,switchFlag;
+	struct tc_task currentTask; /* Used by finish*/
 
 
 	/* Make sure environment is proper */
@@ -169,9 +170,24 @@ int main(int argc, char const *argv[]) {
 			}
 			working_task.endTime = rawtime;
 
+			/* Check the current task before the write.*/
+			currentTask.taskName = malloc(TC_MAX_BUFF*sizeof(char));
+			currentTask.taskInfo = malloc(TC_MAX_BUFF*sizeof(char));
+			_find_current_task(&currentTask);
+			_tc_getCurrentTaskPath(switchStringStorage);
+
 			/* Save the task */
 			_tc_task_write(working_task, tcHomeDirectory);
 			_tc_view_no_args(working_task);
+
+			/* If this task was the same as the current task, remove the current file */
+			if(strcmp(currentTask.taskName,working_task.taskName)==0)
+				remove(switchStringStorage); /* Reusing switchStringStorage*/
+			free(currentTask.taskName);
+			free(currentTask.taskInfo);
+
+
+
 			free(working_task.taskInfo);
 			exit(1);
 		}

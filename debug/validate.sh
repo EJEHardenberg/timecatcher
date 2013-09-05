@@ -1,42 +1,59 @@
 #!/bin/sh
 #verification script:
 
-#Store the tc folder temporarilly
+echo "Store the tc folder temporarilly"
 mv ~/.tc ~/.tctmp
 
-#try to look at a current that isn't there at all.
+echo "try to look at a current that isn't there at all."
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view
 
-#verbosely look for a current that isn't there
+echo "verbosely look for a current that isn't there"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view -v
 
-#start a task
+echo "start a task"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start task1
 
-#view information on the current task:
+echo "view information on the current task:"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view
 
-#verbosely look at the current task
+echo "verbosely look at the current task"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view -v
 
-#try to start a new task while there is a current one without a switch statement
+echo "try to start a new task while there is a current one without a switch statement"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start task2
 
-#switch to a new task correctly
+echo "switch to a new task correctly"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start -s task2
 
-#can we switch back to an old task?
+echo "can we switch back to an old task?"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start -s task1
 
-#swiching to the same task should not be allowed
+echo "swiching to the same task should not be allowed"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start -s task1
 
-#finish a task
+echo "finish a task"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch finish task2
 
-#try to finish the task again (will say no)
+echo "try to finish the task again (will say no)"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch finish task2
 
+echo "There will still be a current task (task1) becuase we finished task2 not task1"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view
+
+echo "Trying to start a new task will fail becuase we're working on one still"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start task3
+
+echo "finishing task 1 will remove the current file"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch finish task1
+
+echo "See? No current task:"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view
+
+echo "Viewing a finished task will show completed"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view task2
+
+echo "Task 3 does not exist because we never started it"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view task3
 
 #put the old tc back
 rm -Rf ~/.tc
