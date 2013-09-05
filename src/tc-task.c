@@ -205,6 +205,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 			exit(1);    		
     	} else {
     		/* Write out information to the file if there is any*/
+    		
     		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,structToWrite.taskName) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);

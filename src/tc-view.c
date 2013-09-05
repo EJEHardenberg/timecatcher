@@ -10,7 +10,8 @@ void _tc_view_no_args(struct tc_task working_task){
 		/* If we're working on a task then no. finish it first or pause it */
 		fprintf(stderr, "\n%s\n", "No current task being worked on.");
 		free(working_task.taskName);
-		free(working_task.taskInfo);
+		if(working_task.taskInfo)
+			free(working_task.taskInfo);
 		exit(1);
 	}
 
@@ -48,12 +49,14 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 			_tc_task_read(taskName,&working_task);
 		
 
-		if( working_task.state == TC_TASK_NOT_FOUND ){
-			/* Found, but not parsed correctly. */
-			free(working_task.taskInfo);
-			exit(1);
-		}
-		_tc_displayView(working_task,verboseFlag);
+		if( working_task.state == TC_TASK_FOUND )
+			;/* Found, but not parsed correctly. */
+		else if( working_task.state == TC_TASK_NOT_FOUND )
+			fprintf(stderr, "%s\n", "Could not find a current task to show.");
+		else
+			_tc_displayView(working_task,verboseFlag);	
+		
+		
 		free(working_task.taskInfo);
 		exit(1);
 	}

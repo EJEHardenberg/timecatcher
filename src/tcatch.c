@@ -22,7 +22,9 @@ int main(int argc, char const *argv[]) {
 
 	/* Make sure environment is proper */
 	tc_init(tcHomeDirectory);
+	memset(taskName,0,TC_MAX_BUFF);
 	taskName[0] = '\0';
+
 
 	/* Initialize task struct*/
 	working_task.taskName = malloc(TC_MAX_BUFF*sizeof(char));
@@ -39,6 +41,7 @@ int main(int argc, char const *argv[]) {
 	working_task.state = TC_TASK_NOT_FOUND;
 	working_task.seqNum = 0;
 	working_task.startTime=working_task.pauseTime=working_task.endTime=0;
+	working_task.taskInfo[0] = '\0';
 	
 
 	/* Determine what we've been asked to do */
