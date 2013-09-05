@@ -55,6 +55,9 @@ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 
 echo "Task 3 does not exist because we never started it"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view task3
 
+echo "Add some information to the task"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch add-info This is some summary information
+
 #put the old tc back
 rm -Rf ~/.tc
 mv ~/.tctmp ~/.tc

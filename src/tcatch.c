@@ -139,10 +139,31 @@ int main(int argc, char const *argv[]) {
 
 		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
 			/* Check if there is a current task */
-			
-			/* Retrieve the current task */
+
+			_find_current_task(&working_task);
+			if(working_task.state == TC_TASK_NOT_FOUND){
+				free(working_task.taskName);
+				free(working_task.taskInfo);
+				fprintf(stderr, "%s\n", "No current task to add information to.");
+				exit(1);
+			}
+	
+			/* Open up the info file for writing */
+			if(_tc_file_exists(working_task.taskInfo) == FALSE){
+				free(working_task.taskName);
+				free(working_task.taskInfo);
+				fprintf(stderr, "%s\n", "Could not find information file for current task.");
+				exit(1); /* Could just create the file instead of exiting I suppose...*/
+			}
 
 			/* Add information to the task */
+			free(working_task.taskInfo);
+
+			working_task.taskInfo = taskName; /* Kinda funny but since taskName is whats parsed from the cli this is the info */
+			_tc_task_write(working_task,tcHomeDirectory);
+			free(working_task.taskName);		
+			fprintf(stdout, "%s\n", "Wrote information to current task.");
+			exit(1);
 
 			/* Save the task */
 		}else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
