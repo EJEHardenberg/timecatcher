@@ -100,6 +100,14 @@ int main(int argc, char const *argv[]) {
 				_find_current_task(&working_task);
 				if(working_task.state != TC_TASK_NOT_FOUND){
 
+					/* Cant switch to the current task */
+					if(strcmp(working_task.taskName,taskName)==0){
+						fprintf(stderr, "%s\n", "Already working on that task. No need to switch");
+						free(working_task.taskInfo);
+						free(working_task.taskName);
+						exit(1);
+					}
+
 					if( working_task.state == TC_TASK_STARTED ){
 						/* Pause the task */
 						working_task.state = TC_TASK_PAUSED;
@@ -108,6 +116,7 @@ int main(int argc, char const *argv[]) {
 						if(rawtime == -1){
 							fprintf(stderr, "%s\n", "Could not determine time. Exiting");
 							free(working_task.taskInfo);
+							free(working_task.taskName);
 							exit(1);
 						}
 						working_task.pauseTime = rawtime;
