@@ -77,7 +77,7 @@ int main(int argc, char const *argv[]) {
 			if(argv[i][0] != '-')
 				sprintf(taskName,"%s %s",taskName,argv[i]);
 			else
-				i = argc; /*Ignore any flag value*/
+				continue; /*Ignore any flag value*/
 
 		/* Strip front white space or ending white space */
 		trim(taskName);

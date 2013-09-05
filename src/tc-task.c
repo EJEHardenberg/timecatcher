@@ -7,9 +7,11 @@ void _find_current_task(struct tc_task * taskStruct){
 	/*Returns an error code within the taskStruct to determine success or not*/
 	char currentTaskPath[TC_MAX_BUFF];
 	char currentTaskInfoPath[TC_MAX_BUFF];
+	char taskSequencePath[TC_MAX_BUFF];
 	char tempBuffer[TC_MAX_BUFF];
 	char taskHash[21]; /*hash is 20, +1 for \0*/
-	int storedTime;
+	int priorTime,runningTime;
+	int seqNum, seqState, seqTime;
 	FILE * fp;
 
 	_tc_getCurrentTaskPath(currentTaskPath);
@@ -33,9 +35,40 @@ void _find_current_task(struct tc_task * taskStruct){
 		tempBuffer[strlen(tempBuffer)-1] = '\0';
 		strcpy(taskHash,tempBuffer);
 
+		fclose(fp);
 
-		/* If the file exists we should return information about it */
-		fscanf(fp, "%i %i %i\n", &taskStruct->seqNum, &taskStruct->state, &storedTime);
+		sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+		fp = fopen(taskSequencePath,"r");
+		if(!fp){
+			fprintf(stderr, "%s\n", "Could not find or open the sequence file for task. Exiting");
+			taskStruct->state =  TC_TASK_NOT_FOUND;
+			return;
+		}
+
+		runningTime = 0;
+		while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
+			if (seqNum == 0) {
+				taskStruct->startTime = seqTime;
+				priorTime = seqTime;
+			} else {
+				/* Calculate time spent on task */	
+				if( seqState == TC_TASK_PAUSED ) {
+					runningTime = runningTime + (seqTime - priorTime);
+				} else {
+					/* Finish state or not found or found or started */
+					priorTime = seqTime;
+				}
+			}
+		}
+
+		if(runningTime == 0 && seqState == TC_TASK_STARTED ){
+			runningTime =  time(0) - taskStruct->startTime;
+		}
+
+		taskStruct->state = seqState;
+		taskStruct->endTime = seqTime;
+		taskStruct->pauseTime = runningTime;
+
 		fclose(fp);
 
 		/* Get information for task */
@@ -80,7 +113,6 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 	sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
 	sprintf(taskInfoPath,"%s/.tc/%s/%s.info",_tc_getHomePath(),TC_TASK_DIR,taskHash);
-	printf("%s\n", taskSequencePath);
 	fp = fopen(taskSequencePath,"r");
 	if(!fp){
 		fprintf(stderr, "%s\n", "Could not find or open the sequence file for task. Exiting");
@@ -205,7 +237,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 			exit(1);    		
     	} else {
     		/* Write out information to the file if there is any*/
-    		
+
     		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,structToWrite.taskName) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);
