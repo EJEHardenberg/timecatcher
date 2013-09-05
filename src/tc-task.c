@@ -123,7 +123,6 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 	runningTime = 0;
 	while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
-		printf("--%i\n", seqNum);
 		if (seqNum == 0) {
 			structToFill->startTime = seqTime;
 			priorTime = seqTime;
