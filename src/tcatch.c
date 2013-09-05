@@ -145,13 +145,35 @@ int main(int argc, char const *argv[]) {
 
 			/* Save the task */
 		}else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
-			/* Check if there's a current task */
-
-			/* Retrieve the current task */
-
+			/* Check if there's a task */
+			free(working_task.taskName);
+			_tc_task_read(taskName, &working_task);
+			if(working_task.state == TC_TASK_NOT_FOUND){
+				free(working_task.taskInfo);
+				fprintf(stderr, "%s\n", "Could not find the task to finish");
+				exit(1);
+			}else if(working_task.state == TC_TASK_FINISHED){
+				/* Already finished. */
+				free(working_task.taskInfo);
+				fprintf(stderr, "%s\n", "Task is already finished. To resume use the start -s command");
+				exit(1);
+			}
 			/* Finish the task */
+			working_task.state = TC_TASK_FINISHED;
+			rawtime = time(0); 
+			if(rawtime == -1){
+				fprintf(stderr, "%s\n", "Could not determine time. Exiting");
+				free(working_task.taskInfo);
+				free(working_task.taskName);
+				exit(1);
+			}
+			working_task.endTime = rawtime;
 
 			/* Save the task */
+			_tc_task_write(working_task, tcHomeDirectory);
+			_tc_view_no_args(working_task);
+			free(working_task.taskInfo);
+			exit(1);
 		}
 	}
 

@@ -31,6 +31,12 @@ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 
 #swiching to the same task should not be allowed
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start -s task1
 
+#finish a task
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch finish task2
+
+#try to finish the task again (will say no)
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch finish task2
+
 
 #put the old tc back
 rm -Rf ~/.tc
