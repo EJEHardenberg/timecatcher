@@ -68,6 +68,7 @@ void _find_current_task(struct tc_task * taskStruct){
 		taskStruct->state = seqState;
 		taskStruct->endTime = seqTime;
 		taskStruct->pauseTime = runningTime;
+		taskStruct->seqNum = seqNum+1;
 
 		fclose(fp);
 
@@ -122,6 +123,7 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 	runningTime = 0;
 	while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
+		printf("--%i\n", seqNum);
 		if (seqNum == 0) {
 			structToFill->startTime = seqTime;
 			priorTime = seqTime;
@@ -140,8 +142,10 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 		runningTime =  time(0) - structToFill->startTime;
 	}
 
+
 	structToFill->state = seqState;
 	structToFill->endTime = seqTime;
+	structToFill->seqNum = seqNum+1;
 	structToFill->pauseTime = runningTime;
 
 	fclose(fp);

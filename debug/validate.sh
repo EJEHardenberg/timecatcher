@@ -25,7 +25,8 @@ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 
 #switch to a new task correctly
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start -s task2
 
-
+#can we switch back to an old task?
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start -s task2
 
 
 #put the old tc back
