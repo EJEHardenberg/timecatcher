@@ -10,7 +10,7 @@ void _find_current_task(struct tc_task * taskStruct){
 	char taskSequencePath[TC_MAX_BUFF];
 	char tempBuffer[TC_MAX_BUFF];
 	char taskHash[21]; /*hash is 20, +1 for \0*/
-	int priorTime,runningTime;
+	int priorTime,runningTime,priorState;
 	int seqNum, seqState, seqTime;
 	FILE * fp;
 
@@ -50,14 +50,15 @@ void _find_current_task(struct tc_task * taskStruct){
 			if (seqNum == 0) {
 				taskStruct->startTime = seqTime;
 				priorTime = seqTime;
+				priorState = seqState;
 			} else {
 				/* Calculate time spent on task */	
-				if( seqState == TC_TASK_PAUSED ) {
+				/* Calculate time spent on task */	
+				if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) {
 					runningTime = runningTime + (seqTime - priorTime);
-				} else {
-					/* Finish state or not found or found or started */
 					priorTime = seqTime;
 				}
+				priorState = seqState;
 			}
 		}
 
@@ -101,6 +102,7 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 
 	int seqNum, seqState, seqTime;
 	int priorTime;
+	int priorState;
 	int runningTime;
 
 
@@ -121,26 +123,26 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 		return;
 	}
 
-	runningTime = 0;
+	runningTime =  seqState = 0;
 	while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
 		if (seqNum == 0) {
 			structToFill->startTime = seqTime;
 			priorTime = seqTime;
+			priorState = seqState;
 		} else {
 			/* Calculate time spent on task */	
-			if( seqState == TC_TASK_PAUSED ) {
+			if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) {
 				runningTime = runningTime + (seqTime - priorTime);
-			} else {
-				/* Finish state or not found or found or started */
 				priorTime = seqTime;
 			}
+			priorState = seqState;
+			
 		}
 	}
-
+	
 	if(runningTime == 0 && seqState == TC_TASK_STARTED ){
 		runningTime =  time(0) - structToFill->startTime;
 	}
-
 
 	structToFill->state = seqState;
 	structToFill->endTime = seqTime;
