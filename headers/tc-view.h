@@ -3,6 +3,7 @@
 
 	#include <stdlib.h>
 	#include <stdio.h>
+	#include "tc-task.h"
 
 	void tc_view(int argc, char const *argv[]);
 

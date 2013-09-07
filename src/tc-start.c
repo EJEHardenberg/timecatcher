@@ -55,16 +55,8 @@ void tc_start(int argc, char const *argv[] ){
 				_tc_getCurrentTaskPath(switchStringStorage);
 				remove(switchStringStorage);
 
-				/* Start the new task*/
-				free(working_task.taskInfo);
-				free(working_task.taskName);
+				/* Start the new task (with evil black magic)*/
 				_recurse(taskName,argv);	
-				/* No Code beyond this will ever execute. Why?
-				 * Because calling main recursively results in
-				 * us saying byebye to our current stack and the 
-				 * like. So free up memory before doing so. It
-				 * will NOT be freed below.
-				*/
 			}
 		}else{
 			/* No current task anyway so just start a new task */
