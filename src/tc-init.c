@@ -27,15 +27,8 @@ int _tc_args_flag_check(int argc, char const *argv[], char const * longFlag, cha
 }
 
 void _tc_help_check(int argc, char const *argv[]){
-	int counter;
-	for(counter = 0; counter < argc; ++counter) {
-		/* Check for a --help or -h flag */
-		if(argv[counter][0] == '-'){
-			if( strcasecmp( argv[counter], TC_HELP_SHORT ) == 0 || strcasecmp( argv[counter], TC_HELP_LONG ) == 0 ) {
-				_tc_display_usage(argv[1]);
-			}
-		}
-	}
+	if(_tc_args_flag_check(argc,argv,TC_HELP_LONG,TC_HELP_SHORT) == TRUE)
+		_tc_display_usage(argv[1]);
 }
 
 void _tc_display_usage(const char * command){
