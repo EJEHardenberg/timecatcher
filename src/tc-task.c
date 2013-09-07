@@ -10,8 +10,8 @@ void _find_current_task(struct tc_task * taskStruct){
 	char taskSequencePath[TC_MAX_BUFF];
 	char tempBuffer[TC_MAX_BUFF];
 	char taskHash[21]; /*hash is 20, +1 for \0*/
-	int priorTime,runningTime,priorState;
-	int seqNum, seqState, seqTime;
+	int priorState, seqNum, seqState;
+	time_t seqTime, priorTime, runningTime;
 	FILE * fp;
 
 	_tc_getCurrentTaskPath(currentTaskPath);
@@ -46,7 +46,7 @@ void _find_current_task(struct tc_task * taskStruct){
 		}
 
 		runningTime = 0;
-		while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
+		while( fscanf(fp, "%i %i %ld\n", &seqNum, &seqState, &seqTime) != EOF) {
 			if (seqNum == 0) {
 				taskStruct->startTime = seqTime;
 				priorTime = seqTime;
@@ -62,8 +62,10 @@ void _find_current_task(struct tc_task * taskStruct){
 			}
 		}
 
-		if(runningTime == 0 && seqState == TC_TASK_STARTED ){
-			runningTime =  time(0) - taskStruct->startTime;
+		printf("%ld\n", runningTime);
+
+		if(seqState == TC_TASK_STARTED ){
+			runningTime =  (time(0) - seqTime) + runningTime;
 		}
 
 		taskStruct->state = seqState;
@@ -100,10 +102,10 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 	char taskInfoPath[TC_MAX_BUFF];
 	FILE * fp;
 
-	int seqNum, seqState, seqTime;
-	int priorTime;
+	int seqNum, seqState;
+	time_t priorTime,seqTime,runningTime;
 	int priorState;
-	int runningTime;
+	
 
 
 	structToFill->taskName = (char *)taskName;
@@ -124,7 +126,7 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 	}
 
 	runningTime =  seqState = 0;
-	while( fscanf(fp, "%i %i %i\n", &seqNum, &seqState, &seqTime) != EOF) {
+	while( fscanf(fp, "%i %i %ld\n", &seqNum, &seqState, &seqTime) != EOF) {
 		if (seqNum == 0) {
 			structToFill->startTime = seqTime;
 			priorTime = seqTime;

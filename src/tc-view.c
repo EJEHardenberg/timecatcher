@@ -63,7 +63,7 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 }
 
 void _tc_displayView(struct tc_task working_task,int verbose){
-	int hoursWorked,secondsWorked,daysWorked,minutesWorked;
+	time_t hoursWorked,secondsWorked,daysWorked,minutesWorked;
 	char taskStartedText[TC_MAX_BUFF/2];
 	char taskEndedText[TC_MAX_BUFF/2];
 	char * shortView;
