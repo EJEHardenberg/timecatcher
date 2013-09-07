@@ -19,12 +19,7 @@ void _resolve_taskName_from_args(int argc, char const *argv[],char * taskName){
 void _find_current_task(struct tc_task * taskStruct){
 	/*Returns an error code within the taskStruct to determine success or not*/
 	char currentTaskPath[TC_MAX_BUFF];
-	char currentTaskInfoPath[TC_MAX_BUFF];
-	char taskSequencePath[TC_MAX_BUFF];
 	char tempBuffer[TC_MAX_BUFF];
-	char taskHash[21]; /*hash is 20, +1 for \0*/
-	int priorState, seqNum, seqState;
-	time_t seqTime, priorTime, runningTime;
 	FILE * fp;
 
 	_tc_getCurrentTaskPath(currentTaskPath);
@@ -39,66 +34,13 @@ void _find_current_task(struct tc_task * taskStruct){
 			return;
 		}
 
-		/*Be sure to remove the new line from the buffer*/
+		/* Get the name of the task we want to read */
 		fgets(tempBuffer,TC_MAX_BUFF,fp);
 		tempBuffer[strlen(tempBuffer)-1] = '\0';
-		strcpy(taskStruct->taskName,tempBuffer);
-
-		fgets(tempBuffer,TC_MAX_BUFF,fp); 
-		tempBuffer[strlen(tempBuffer)-1] = '\0';
-		strcpy(taskHash,tempBuffer);
-
 		fclose(fp);
 
-		sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
-		fp = fopen(taskSequencePath,"r");
-		if(!fp){
-			fprintf(stderr, "%s\n", "Could not find or open the sequence file for task. Exiting");
-			taskStruct->state =  TC_TASK_NOT_FOUND;
-			return;
-		}
+		_tc_task_read(tempBuffer, taskStruct);
 
-		runningTime = 0;
-		while( fscanf(fp, "%i %i %ld\n", &seqNum, &seqState, &seqTime) != EOF) {
-			if (seqNum == 0) {
-				taskStruct->startTime = seqTime;
-				priorTime = seqTime;
-				priorState = seqState;
-			} else {
-				/* Calculate time spent on task */	
-				/* Calculate time spent on task */	
-				if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) {
-					runningTime = runningTime + (seqTime - priorTime);
-					priorTime = seqTime;
-				}
-				priorState = seqState;
-			}
-		}
-
-		printf("%ld\n", runningTime);
-
-		if(seqState == TC_TASK_STARTED ){
-			runningTime =  (time(0) - seqTime) + runningTime;
-		}
-
-		taskStruct->state = seqState;
-		taskStruct->endTime = seqTime;
-		taskStruct->pauseTime = runningTime;
-		taskStruct->seqNum = seqNum+1;
-
-		fclose(fp);
-
-		/* Get information for task */
-		sprintf(currentTaskInfoPath,"%s/.tc/%s/%s.info", _tc_getHomePath(), TC_TASK_DIR, taskHash);
-		
-		/* Cheat a little bit 
-		 * It's simple, we stored the NAME of the info file into the structure, then when we want to
-		 * display the information we don't read the whole file into memory, but rather we open it
-		 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
-		 * or reading the file some buffer size at a time.for no reason.
-		*/
-
-		strcpy(taskStruct->taskInfo , currentTaskInfoPath);
 		
 	}else{
 		/* Return an error flag that there is no current task */
