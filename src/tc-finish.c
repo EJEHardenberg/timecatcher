@@ -48,7 +48,7 @@ void tc_finish(int argc, char const * argv[]){
 
 		/* Save the task */
 		_tc_task_write(working_task, tcHomeDirectory);
-		_tc_view_no_args(working_task);
+		_tc_displayView(working_task,FALSE);
 
 		/* If this task was the same as the current task, remove the current file */
 		if(strcmp(currentTask.taskName,working_task.taskName)==0)

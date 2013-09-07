@@ -96,10 +96,10 @@ void _tc_displayView(struct tc_task working_task,int verbose){
 	"Task State: \t\t%s\n\n";
 
 	/*Because endTime can be 0 and will be most of the time, take abs:*/
-	daysWorked = abs(working_task.endTime - working_task.startTime - working_task.pauseTime)/86400;
-	hoursWorked = (abs(working_task.endTime - working_task.startTime - working_task.pauseTime)-(daysWorked*86400))/3600;
-	minutesWorked = (abs(working_task.endTime - working_task.startTime - working_task.pauseTime) - (hoursWorked*3600) - (daysWorked*86400))/60;
-	secondsWorked = abs(working_task.endTime - working_task.startTime - working_task.pauseTime) - (minutesWorked*60) - (hoursWorked*3600) - (daysWorked*86400);
+	daysWorked = abs(working_task.endTime - working_task.startTime + working_task.pauseTime)/86400;
+	hoursWorked = (abs(working_task.endTime - working_task.startTime + working_task.pauseTime)-(daysWorked*86400))/3600;
+	minutesWorked = (abs(working_task.endTime - working_task.startTime + working_task.pauseTime) - (hoursWorked*3600) - (daysWorked*86400))/60;
+	secondsWorked = abs(working_task.endTime - working_task.startTime + working_task.pauseTime) - (minutesWorked*60) - (hoursWorked*3600) - (daysWorked*86400);
 
 	strftime(taskStartedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.startTime));
 

@@ -84,16 +84,23 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 		} else {
 			/* Calculate time spent on task */	
 			if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) {
+				printf("--%ld\n", runningTime);
 				runningTime = runningTime + (seqTime - priorTime);
-				priorTime = seqTime;
+				printf("--%ld\n", runningTime);
 			}
+			priorTime = seqTime;
 			priorState = seqState;
 			
 		}
 	}
 	
+	/* This occurs of the project just started and hasing had any stops yet*/
 	if(runningTime == 0 && seqState == TC_TASK_STARTED ){
 		runningTime =  time(0) - structToFill->startTime;
+	}
+
+	if(seqState == TC_TASK_STARTED){
+		seqTime = seqTime + (time(0)-seqTime);
 	}
 
 	structToFill->state = seqState;
