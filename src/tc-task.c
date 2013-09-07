@@ -6,14 +6,15 @@
 void _resolve_taskName_from_args(int argc, char const *argv[],char * taskName){
 	int i;
 	taskName[0] = '\0';
+	
 	for(i=2; i < argc; ++i)
 		if(argv[i][0] != '-')
 			sprintf(taskName,"%s %s",taskName,argv[i]);
 		else
 			continue; /*Ignore any flag value*/
 
-		/* Strip front white space or ending white space */
-		trim(taskName);
+	/* Strip front white space or ending white space */
+	trim(taskName);
 }
 
 void _find_current_task(struct tc_task * taskStruct){
@@ -39,9 +40,7 @@ void _find_current_task(struct tc_task * taskStruct){
 		tempBuffer[strlen(tempBuffer)-1] = '\0';
 		fclose(fp);
 
-		_tc_task_read(tempBuffer, taskStruct);
-
-		
+		_tc_task_read(tempBuffer, taskStruct);		
 	}else{
 		/* Return an error flag that there is no current task */
 		taskStruct->state = TC_TASK_NOT_FOUND;
@@ -51,17 +50,13 @@ void _find_current_task(struct tc_task * taskStruct){
 
 void _tc_task_read(char const * taskName, struct tc_task * structToFill){ 
 	/* Attempt to fill the structure with data from the file */
-
 	char taskHash[TC_MAX_BUFF];
 	char taskSequencePath[TC_MAX_BUFF];
 	char taskInfoPath[TC_MAX_BUFF];
 	FILE * fp;
-
 	int seqNum, seqState;
 	time_t priorTime,seqTime,runningTime;
 	int priorState;
-	
-
 
 	strcpy(structToFill->taskName,taskName);
 	_tc_taskName_to_Hash((char *)taskName,taskHash);

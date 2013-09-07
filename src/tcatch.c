@@ -7,6 +7,7 @@
 #include "tc-task.h"
 #include "tc-view.h"
 #include "tc-start.h"
+#include "tc-info.h"
 
 
 int main(int argc, char const *argv[]) {
@@ -123,41 +124,9 @@ int main(int argc, char const *argv[]) {
 	if(working_task.taskName != NULL)
 		free(working_task.taskName);
 
-		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 ) {
-			/* Check if there is a current task */
-			struct tc_task working_task;
-	working_task.taskName = malloc(TC_MAX_BUFF*sizeof(char));
-	working_task.taskInfo = malloc(TC_MAX_BUFF*sizeof(char));
-	working_task.state = -1;
-	working_task.seqNum = 0;
-
-			_find_current_task(&working_task);
-			if(working_task.state == TC_TASK_NOT_FOUND){
-				free(working_task.taskName);
-				free(working_task.taskInfo);
-				fprintf(stderr, "%s\n", "No current task to add information to.");
-				exit(1);
-			}
-	
-			/* Open up the info file for writing */
-			if(_tc_file_exists(working_task.taskInfo) == FALSE){
-				free(working_task.taskName);
-				free(working_task.taskInfo);
-				fprintf(stderr, "%s\n", "Could not find information file for current task.");
-				exit(1); /* Could just create the file instead of exiting I suppose...*/
-			}
-
-			/* Add information to the task */
-			free(working_task.taskInfo);
-
-			working_task.taskInfo = taskName; /* Kinda funny but since taskName is whats parsed from the cli this is the info */
-			_tc_task_write(working_task,tcHomeDirectory);
-			free(working_task.taskName);		
-			fprintf(stdout, "%s\n", "Wrote information to current task.");
-			exit(1);
-
-			/* Save the task */
-		}else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
+		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 )
+			tc_addInfo(argc,argv);
+		else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
 			struct tc_task working_task;
 	working_task.taskName = malloc(TC_MAX_BUFF*sizeof(char));
 	working_task.taskInfo = malloc(TC_MAX_BUFF*sizeof(char));
