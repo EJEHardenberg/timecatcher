@@ -28,7 +28,7 @@ int _tc_args_flag_check(int argc, char const *argv[], char const * longFlag, cha
 
 void _tc_help_check(int argc, char const *argv[]){
 	if(_tc_args_flag_check(argc,argv,TC_HELP_LONG,TC_HELP_SHORT) == TRUE)
-		_tc_display_usage(argv[1])
+		_tc_display_usage(argv[1]);
 }
 
 void _tc_display_usage(const char * command){

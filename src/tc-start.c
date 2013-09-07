@@ -53,6 +53,7 @@ void _tc_start(struct tc_task working_task, char * taskName, char * tcHomeDirect
 		exit(1);
 	}
 	working_task.startTime = rawtime;
+	(*working_task.taskInfo) = '\0';
 	_tc_task_write(working_task, tcHomeDirectory);
 	
 	fprintf(stdout, "Task: %s has been started.\n", working_task.taskName);

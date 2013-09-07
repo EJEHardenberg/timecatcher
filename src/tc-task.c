@@ -3,6 +3,19 @@
 
 #include <ctype.h>
 
+void _resolve_taskName_from_args(int argc, char const *argv[],char * taskName){
+	int i;
+	taskName[0] = '\0';
+	for(i=2; i < argc; ++i)
+		if(argv[i][0] != '-')
+			sprintf(taskName,"%s %s",taskName,argv[i]);
+		else
+			continue; /*Ignore any flag value*/
+
+		/* Strip front white space or ending white space */
+		trim(taskName);
+}
+
 void _find_current_task(struct tc_task * taskStruct){
 	/*Returns an error code within the taskStruct to determine success or not*/
 	char currentTaskPath[TC_MAX_BUFF];

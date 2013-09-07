@@ -4,6 +4,28 @@
 #include "tc-init.h"
 
 
+void tc_view(int argc, char const *argv[]){
+	struct tc_task taskToView;
+	char taskName[TC_MAX_BUFF];
+	taskName[0] = '\0';
+
+	_resolve_taskName_from_args(argc,argv,taskName);
+	
+	taskToView.taskName = malloc(TC_MAX_BUFF*sizeof(char));
+	taskToView.taskInfo = malloc(TC_MAX_BUFF*sizeof(char));
+	if(argc == 2)
+		_tc_view_no_args(taskToView);
+	else
+		_tc_view_with_args(
+							taskToView,
+							_tc_args_flag_check(argc,argv,TC_VERBOSE_LONG,TC_VERBOSE_SHORT),
+							argc, argv,
+							taskName
+						);
+	free(taskToView.taskName);
+	free(taskToView.taskInfo);
+}
+
 void _tc_view_no_args(struct tc_task working_task){
 	_find_current_task(&working_task);
 	if(working_task.state == TC_TASK_NOT_FOUND){
