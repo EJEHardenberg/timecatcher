@@ -1,7 +1,7 @@
 #ifndef __TC_INIT_H__
 	#define __TC_INIT_H__
 
-
+	int main(int argc, char const * argv[]); 
 	const char * tc_init(char taskParentDirectory[]);
 	void _tc_display_usage(const char * command);
 	void _tc_help_check(int argc, char const *argv[]);
