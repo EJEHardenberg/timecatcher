@@ -121,7 +121,7 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 	
 
 
-	structToFill->taskName = (char *)taskName;
+	strcpy(structToFill->taskName,taskName);
 	_tc_taskName_to_Hash((char *)taskName,taskHash);
 	
 	/* Read the sequence information for the sequence number and timing info and the last state*/

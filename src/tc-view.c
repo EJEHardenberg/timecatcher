@@ -27,31 +27,29 @@ void tc_view(int argc, char const *argv[]){
 }
 
 void _tc_view_no_args(struct tc_task working_task){
+	char taskName[TC_MAX_BUFF]; 
+	taskName[0] = '\0';
+
 	_find_current_task(&working_task);
 	if(working_task.state == TC_TASK_NOT_FOUND){
 		/* If we're working on a task then no. finish it first or pause it */
 		fprintf(stderr, "\n%s\n", "No current task being worked on.");
-		free(working_task.taskName);
-		if(working_task.taskInfo)
-			free(working_task.taskInfo);
-		exit(1);
+		return;
 	}
+	strcpy(taskName,working_task.taskName);
 
 	/* There is a working task so we should resolve it into information */
-	_tc_task_read(working_task.taskName,&working_task);
+	_tc_task_read(taskName,&working_task);
 	if(working_task.state == TC_TASK_NOT_FOUND){
 		/* If we're working on a task then no. finish it first or pause it */
 		fprintf(stderr, "%s\n", "Current task file exists, but could not resolve sequence file");
-		free(working_task.taskName);
-		free(working_task.taskInfo);
-		exit(1);
+		return;
 	}
 
 	if( working_task.state == TC_TASK_FOUND ){
 		/* Found, but not parsed correctly. */
-		free(working_task.taskName);
-		free(working_task.taskInfo);
-		exit(1);
+		fprintf(stderr, "%s\n", "Current task file exists, but was corrupt");
+		return;
 	}
 
 	_tc_displayView(working_task,FALSE);
@@ -63,8 +61,6 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 		/* Show all tasks */
 		; /* Will come back to this after the add info and finish task functions are done*/
 	}else{
-		free(working_task.taskName);
-		working_task.taskName = taskName;
 		if(strcmp(taskName,"")==0)
 			_find_current_task(&working_task);
 		else
@@ -72,15 +68,12 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 		
 
 		if( working_task.state == TC_TASK_FOUND )
-			;/* Found, but not parsed correctly. */
+			fprintf(stderr, "%s\n", "Current task file exists, but was corrupt");
 		else if( working_task.state == TC_TASK_NOT_FOUND )
 			fprintf(stderr, "%s\n", "Could not find a current task to show.");
 		else
 			_tc_displayView(working_task,verboseFlag);	
 		
-		
-		free(working_task.taskInfo);
-		exit(1);
 	}
 }
 
