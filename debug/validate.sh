@@ -61,6 +61,9 @@ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 
 echo "Show all tasks"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view --all
 
+echo "Show all tasks verbosely"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view --all --verbose
+
 #put the old tc back
 rm -Rf ~/.tc
 mv ~/.tctmp ~/.tc

@@ -47,7 +47,7 @@ void _tc_display_usage(const char * command){
 	"\tfinish		Finish a task that has been started\n"
 	"\tview		View the current task or a list of all tasks\n"
 	"\n"
-	"See tcatch help <command> for information on a specific command\n"
+	"See tcatch <command> --help for information on a specific command\n"
 	"\n";
 
 	view_usage = ""

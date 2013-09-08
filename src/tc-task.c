@@ -253,7 +253,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 	/* Append information to the index file 
 	 * This information is in the format: <task hash> <state>
 	*/
-	fprintf(fp, "%s %i\n", fileHash, structToWrite.state);
+	fprintf(fp, "%s %s %i\n", fileHash, structToWrite.taskName, structToWrite.state);
 	fflush(fp);
 	fclose(fp);
 
