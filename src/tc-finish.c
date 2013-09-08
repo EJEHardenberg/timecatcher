@@ -12,6 +12,7 @@ void tc_finish(int argc, char const * argv[]){
 	char tcHomeDirectory[TC_MAX_BUFF];
 	char currentTaskPath[TC_MAX_BUFF];
 	time_t rawtime;
+	time_t oldEndTime;
 
 	tc_init(tcHomeDirectory);
 
@@ -37,6 +38,7 @@ void tc_finish(int argc, char const * argv[]){
 			free(working_task.taskName);
 			exit(1);
 		}
+		oldEndTime = working_task.endTime;
 		working_task.endTime = rawtime;
 
 		/* Check the current task before the write.*/
@@ -48,6 +50,10 @@ void tc_finish(int argc, char const * argv[]){
 
 		/* Save the task */
 		_tc_task_write(working_task, tcHomeDirectory);
+
+		/* Set the state and times so the finished task will display correctly*/
+		working_task.state = TC_TASK_STARTED;
+		working_task.endTime = oldEndTime;
 		_tc_displayView(working_task,FALSE);
 
 		/* If this task was the same as the current task, remove the current file */
