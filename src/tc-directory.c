@@ -22,6 +22,12 @@ const char * _tc_getHomePath(){
 	return homePath;
 }
 
+void _tc_getTasksDir(char * tasksDir){
+	const char * home;
+	home = _tc_getHomePath();
+	sprintf(tasksDir,"%s/.tc/%s",home,TC_TASK_DIR);
+}
+
 void _tc_getCurrentTaskPath(char * currentTaskPath){
 	const char * home;
 	home = _tc_getHomePath();

@@ -3,6 +3,7 @@
 #include "tc-directory.h"
 #include "tc-init.h"
 
+#include <dirent.h>
 
 void tc_view(int argc, char const *argv[]){
 	struct tc_task taskToView;
@@ -56,10 +57,20 @@ void _tc_view_no_args(struct tc_task working_task){
 }
 
 void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, char const *argv[], char * taskName){
+	struct tc_task allTasks[TC_MAX_BUFF];
+	int i;
 	/* Check for all flag in any position*/
 	if( _tc_args_flag_check(argc, argv, TC_VIEW_ALL_LONG, TC_VIEW_ALL_SHORT) == TRUE ){
 		/* Show all tasks */
-		; /* Will come back to this after the add info and finish task functions are done*/
+		
+		/* Display each task */
+		i=0;
+		for (i = _getAllTasks(allTasks); i >= 0; --i){
+			_tc_displayView(allTasks[i],verboseFlag);
+			free(allTasks[i].taskName);
+			free(allTasks[i].taskInfo);
+		}
+		
 	}else{
 		if(strcmp(taskName,"")==0)
 			_find_current_task(&working_task);
@@ -74,6 +85,44 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 			_tc_displayView(working_task,verboseFlag);	
 		
 	}
+}
+
+int _getAllTasks(struct tc_task allTasks[]){
+	DIR * dirPointer;
+	struct dirent *dirEntry;
+	char taskDir[TC_MAX_BUFF];
+	char  * fileName;
+	char * namePointer;
+	int i;
+
+	_tc_getTasksDir(taskDir);
+
+	dirPointer= opendir(taskDir);
+	if(dirPointer == NULL){
+		fprintf(stderr, "%s\n", "Could not open task directory for file listing");
+		return 0;
+	}
+
+	i=0;
+	while((dirEntry = readdir(dirPointer)) != NULL && i < TC_MAX_BUFF){
+		fileName = dirEntry->d_name;
+		if((namePointer = strstr(fileName,".seq")) != NULL){
+			/* We have a task to read about! */
+			/* Get JUST the hash from the file */
+			(*namePointer) = '\0'; /* Terminate the string at the end of the hash*/
+			allTasks[i].taskName = malloc(TC_MAX_BUFF*sizeof(char));
+			allTasks[i].taskInfo = malloc(TC_MAX_BUFF*sizeof(char));
+			if(allTasks[i].taskName == NULL || allTasks[i].taskInfo == NULL)
+				continue; /* If we can't get the memory then run away!*/
+			allTasks[i].state = TC_TASK_NOT_FOUND;
+			allTasks[i].seqNum = 0;
+			_tc_task_read_byHashPath(fileName,&allTasks[i]);
+
+			++i;
+		}
+	}
+	closedir(dirPointer);
+	return i-1;
 }
 
 void _tc_displayView(struct tc_task working_task,int verbose){

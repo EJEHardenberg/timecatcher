@@ -112,9 +112,6 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 	 * or reading the file some buffer size at a time.for no reason.
 	*/
 	strcpy(structToFill->taskInfo , taskInfoPath);
-	
-
-	
 
 }
 
@@ -340,4 +337,90 @@ char *trim(char *str)
 
 
     return str;
+}
+
+void _tc_task_read_byHashPath(char const * taskHash, struct tc_task * structToFill){ 
+	/* Attempt to fill the structure with data from the file */
+	char taskSequencePath[TC_MAX_BUFF];
+	char taskInfoPath[TC_MAX_BUFF];
+	char taskName[TC_MAX_BUFF];
+	FILE * fp;
+	int seqNum, seqState;
+	time_t priorTime,seqTime,runningTime;
+	int priorState;
+
+	/* Read the sequence information for the sequence number and timing info and the last state*/
+	/* So to tease out the information we need to read the sequence information. The start time is 
+	 * the first time in the sequence file by default, so lets open the sequence file:
+	*/
+	taskName[0] = '\0';
+	strcpy(structToFill->taskName,taskName);
+
+
+	sprintf(taskSequencePath,"%s/.tc/%s/%s.seq",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+	sprintf(taskInfoPath,"%s/.tc/%s/%s.info",_tc_getHomePath(),TC_TASK_DIR,taskHash);
+	fp = fopen(taskSequencePath,"r");
+	if(!fp){
+		fprintf(stderr, "%s\n", "Could not find or open the sequence file for task.");
+		structToFill->startTime = 0;
+		structToFill->pauseTime = 0;
+		structToFill->endTime = 0;
+		structToFill->state =  TC_TASK_NOT_FOUND;
+		return;
+	}
+
+	runningTime =  seqState = seqTime = 0;
+	while( fscanf(fp, "%i %i %ld\n", &seqNum, &seqState, &seqTime) != EOF) {
+		if (seqNum == 0) {
+			structToFill->startTime = seqTime;
+			priorTime = seqTime;
+			priorState = seqState;
+		} else {
+			/* Calculate time spent on task */	
+			if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) 
+				runningTime = runningTime + (seqTime - priorTime);
+			
+			priorTime = seqTime;
+			priorState = seqState;
+			
+		}
+	}
+	
+	/* This occurs of the project just started and hasing had any stops yet*/
+	if(runningTime == 0 && seqState == TC_TASK_STARTED ){
+		runningTime =  time(0) - structToFill->startTime;
+	}
+
+	
+	structToFill->endTime = seqTime;
+	structToFill->state = seqState;
+	structToFill->seqNum = seqNum+1;
+	structToFill->pauseTime = runningTime;
+
+	fclose(fp);
+
+
+	fp = fopen(taskInfoPath,"r");
+	if(!fp){
+		fprintf(stderr, "%s\n", "Could not find or open the info file for task.");
+		structToFill->state =  TC_TASK_NOT_FOUND;
+		structToFill->startTime = 0;
+		structToFill->pauseTime = 0;
+		structToFill->endTime = 0;
+		return;
+	}
+
+	/* The first line is the task name*/
+	fscanf(fp,"%s\n", taskName);
+	strcpy(structToFill->taskName,taskName);
+
+	fclose(fp);
+	/* Cheat a little bit 
+	 * It's simple, we stored the NAME of the info file into the structure, then when we want to
+	 * display the information we don't read the whole file into memory, but rather we open it
+	 * then read it directly into an output stream. This saves us the trouble of realloc-ing memory
+	 * or reading the file some buffer size at a time.for no reason.
+	*/
+	strcpy(structToFill->taskInfo , taskInfoPath);
+
 }

@@ -12,5 +12,6 @@
 	int _tc_directoryExists(char * directoryToCheck);
 	int _tc_file_exists(const char * filename);
 	void _tc_getCurrentTaskPath(char * currentTaskPath);
+	void _tc_getTasksDir(char * tasksDir);
 
 #endif
