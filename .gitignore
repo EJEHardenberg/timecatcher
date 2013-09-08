@@ -1,0 +1,5 @@
+*.o
+*.out
+
+#Ignore the executable
+tcatch
