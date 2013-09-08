@@ -32,6 +32,30 @@ Or to view all tasks that have been done or are in progress:
 
     ./tcatch view --all
 
+How To Install
+-----------------------------------------------------------------------
+From github:
+    
+    $git clone https://github.com/EJEHardenberg/timecatcher.git
+    $cd timecatcher
+    $make
+    $cp completion.sh /etc/bash_completion.d/
+    $chmod +x tcatch
+    $cp tcatch /usr/bin/
+    $source completion.sh
+
+You can download a zip as well and then run the same commands besides
+clone. 
+
+What you're doing, if your distribution is different from mine (mint)
+then place the completion.sh script into your bash completion directory
+and put the tcatch binary into your path somehow. You could do this:
+    
+    $source completion.sh
+    $PATH=$PATH:~/your/path/to/timetatcher/
+
+And you'd have it available in your shell for the duration of your 
+session.
 
 How it works
 -----------------------------------------------------------------------
@@ -50,6 +74,12 @@ information about the current task being worked on. The file contains
 the location of the starting as well as the ending file. The difference
 between these two files (and any pause files)  is used to calculate any
 information about the task at all.
+
+You can edit the information files as much as you'd like so long as you
+don't remove the task name as the first line of the file. If you want to
+be able to enjoy the view --all command then don't mess with the first
+line of the .info files. If you don't like the .tc directory being in 
+your home directory, then you'll have to modify the source.
 
 
 
