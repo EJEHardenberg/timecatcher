@@ -90,3 +90,29 @@ Running make should create the program. To verify 0 memory leaks:
 
     valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch
  
+
+How to Contribute (If you're inclined)
+-----------------------------------------------------------------------
+
+1. Fork the repository
+2. Clone it to your local machine
+3. Do the following commands:
+    
+    `git checkout -b develop`  
+    `git remote add upstream https://github.com/EJEHardenberg/timecatcher.git`  
+    `git pull upstream develop`  
+    `gitk`  
+
+4. Read the logfile and enjoy my humor
+5. Use git flow or whatever you like to play around
+6. Run valgrind or the validate script against your changes
+7. Send pull request
+8. ???
+9. Profit?
+
+Improvements I want to see / plan on
+-----------------------------------------------------------------------
+
+1. Pause command instead of the -s to start
+2. Some type of timeline that makes use of the index file
+3. Integration with a git hook
