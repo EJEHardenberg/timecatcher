@@ -66,7 +66,6 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 		else
 			_tc_task_read(taskName,&working_task);
 		
-
 		if( working_task.state == TC_TASK_FOUND )
 			fprintf(stderr, "%s\n", "Current task file exists, but was corrupt");
 		else if( working_task.state == TC_TASK_NOT_FOUND )
@@ -91,22 +90,20 @@ void _tc_displayView(struct tc_task working_task,int verbose){
 	shortView = ""
 	"Task Name:\t\t%s\n"
 	"Time Started: \t\t%s\n"
-	"Total Time Worked: \t%i Days %i Hours %i Minutes and %i Seconds\n"
+	"Total Time Worked: \t%ld Days %ld Hours %ld Minutes and %ld Seconds\n"
 	"Last Time Updated: \t%s\n"
 	"Task State: \t\t%s\n\n";
 
-	/*Because endTime can be 0 and will be most of the time, take abs:*/
-	daysWorked = abs(working_task.endTime - working_task.startTime + working_task.pauseTime)/86400;
-	hoursWorked = (abs(working_task.endTime - working_task.startTime + working_task.pauseTime)-(daysWorked*86400))/3600;
-	minutesWorked = (abs(working_task.endTime - working_task.startTime + working_task.pauseTime) - (hoursWorked*3600) - (daysWorked*86400))/60;
-	secondsWorked = abs(working_task.endTime - working_task.startTime + working_task.pauseTime) - (minutesWorked*60) - (hoursWorked*3600) - (daysWorked*86400);
 
+	
+	/*Because endTime can be 0 and will be most of the time, take abs:*/
+	daysWorked = abs( (time(0) - working_task.endTime)*( TC_TASK_STARTED == working_task.state ? 1 : 0) + working_task.pauseTime)/86400L;
+	hoursWorked = (abs( (time(0) - working_task.endTime)*( TC_TASK_STARTED == working_task.state ? 1 : 0) + working_task.pauseTime)-(daysWorked*86400L))/3600L;
+	minutesWorked = (abs( (time(0) - working_task.endTime)*( TC_TASK_STARTED == working_task.state ? 1 : 0) + working_task.pauseTime) - (hoursWorked*3600L) - (daysWorked*86400L))/60L;
+	secondsWorked = abs( (time(0) - working_task.endTime)*( TC_TASK_STARTED == working_task.state ? 1 : 0) + working_task.pauseTime) - (minutesWorked*60L) - (hoursWorked*3600L) - (daysWorked*86400L);
+	
 	strftime(taskStartedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.startTime));
 
-	if(working_task.state == TC_TASK_STARTED ) {
-		/* The task is still in progress so: */
-		working_task.endTime = time(0);
-	}
 
 	strftime(taskEndedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.endTime));
 

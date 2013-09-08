@@ -83,11 +83,9 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 			priorState = seqState;
 		} else {
 			/* Calculate time spent on task */	
-			if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) {
-				printf("--%ld\n", runningTime);
+			if( priorState == TC_TASK_STARTED && (seqState == TC_TASK_PAUSED || seqState == TC_TASK_FINISHED) ) 
 				runningTime = runningTime + (seqTime - priorTime);
-				printf("--%ld\n", runningTime);
-			}
+			
 			priorTime = seqTime;
 			priorState = seqState;
 			
@@ -99,12 +97,9 @@ void _tc_task_read(char const * taskName, struct tc_task * structToFill){
 		runningTime =  time(0) - structToFill->startTime;
 	}
 
-	if(seqState == TC_TASK_STARTED){
-		seqTime = seqTime + (time(0)-seqTime);
-	}
-
-	structToFill->state = seqState;
+	
 	structToFill->endTime = seqTime;
+	structToFill->state = seqState;
 	structToFill->seqNum = seqNum+1;
 	structToFill->pauseTime = runningTime;
 
@@ -158,8 +153,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 	char taskSequencePath[TC_MAX_BUFF]; 
 	char taskInfoPath[TC_MAX_BUFF];
 	char * fileHash;
-	int timeToWrite;
-	time_t rawtime;
+	time_t rawtime, timeToWrite;
 	struct tm * timeinfo;
 	char currentDate[TC_MAX_BUFF/2];
 	char indexFilePath[TC_MAX_BUFF];
@@ -236,11 +230,10 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 				break;
 			case TC_TASK_STARTED:
 			default:
-				timeToWrite = structToWrite.startTime;
+				timeToWrite = time(0);
 				break;
-
 		}
-		fprintf(fp, "%i %i %i\n", structToWrite.seqNum, structToWrite.state, timeToWrite);
+		fprintf(fp, "%i %i %ld\n", structToWrite.seqNum, structToWrite.state, timeToWrite);
 		fflush(fp);
 		fclose(fp);
     }
@@ -278,7 +271,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
 	}
 	fprintf(fp, "%s\n", structToWrite.taskName);
 	fprintf(fp, "%s\n", fileHash);
-	fprintf(fp, "%i %i %i\n", structToWrite.seqNum, structToWrite.state, timeToWrite);
+	fprintf(fp, "%i %i %ld\n", structToWrite.seqNum, structToWrite.state, timeToWrite);
 	fflush(fp);
 	fclose(fp);
 
