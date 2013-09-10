@@ -9,6 +9,7 @@
 #include "tc-start.h"
 #include "tc-info.h"
 #include "tc-finish.h"
+#include "tc-pause.h"
 
 int main(int argc, char const *argv[]) {	
 	/* Determine what we've been asked to do */
@@ -18,12 +19,13 @@ int main(int argc, char const *argv[]) {
 
 	}else if ( argc == 2 ){
 		/* Called with just a command, beworking_tasksides view let it go to usage*/
-		if ( strcasecmp( argv[1], TC_VIEW_COMMAND) == 0 ) {
-			/* View is the only command (so far) that renders w/ no arguments */
+		if ( strcasecmp( argv[1], TC_VIEW_COMMAND) == 0 ) 
 			tc_view(argc,argv);
-		} else {
+		else if (strcasecmp(argv[1], TC_PAUSE_COMMAND) == 0)
+			tc_pause(argc,argv);
+		else 
 			_tc_display_usage(argv[1]);
-		}
+		
 
 	}else{/* Called with command and arguments of some kind*/
 
@@ -31,15 +33,18 @@ int main(int argc, char const *argv[]) {
 		_tc_help_check(argc,argv);
 
 		/* No help requested try to parse the command*/
-		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 ){
+		if( strcasecmp( argv[1], TC_VIEW_COMMAND ) == 0 )
 			tc_view(argc, argv);
-		}else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) {
+		else if ( strcasecmp( argv[1], TC_START_COMMAND ) == 0 ) 
 			tc_start(argc,argv);
-		}else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 )
+		else if (strcasecmp ( argv[1], TC_ADD_INFO_COMMAND ) == 0 )
 			tc_addInfo(argc,argv);
-		else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) {
+		else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) 
 			tc_finish(argc,argv);
-		}
+		else if (strcasecmp(argv[1], TC_PAUSE_COMMAND) == 0)
+			tc_pause(argc,argv);
+		else
+			fprintf(stderr, "%s\n", "Command  not recognized."), _tc_display_usage(NULL);
 	}
 
 	return FALSE;

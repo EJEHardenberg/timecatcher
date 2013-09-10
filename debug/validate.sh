@@ -64,6 +64,21 @@ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 
 echo "Show all tasks verbosely"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch view --all --verbose
 
+echo "Start up a new task to test pausing"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start pauseTest
+
+echo "Start pause the task"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch pause
+
+echo "Start up a the task again"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch start pauseTest
+
+echo "Pause the task with arguments (which doesn't do anything)"
+valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch pause arguments arguments
+
+
+
+
 #put the old tc back
 rm -Rf ~/.tc
 mv ~/.tctmp ~/.tc

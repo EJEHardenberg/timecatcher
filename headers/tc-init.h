@@ -20,6 +20,7 @@
 	#define TC_FINISH_COMMAND "finish"
 	#define TC_SWITCH_LONG "--switch"
 	#define TC_SWITCH_SHORT "-s"
+	#define TC_PAUSE_COMMAND "pause"
 	#ifndef TRUE
 		#define TRUE 1
 	#endif

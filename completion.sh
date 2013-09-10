@@ -8,7 +8,7 @@ _tcBase()
     #
     #  The basic options we'll complete.
     #
-    opts="start add-info finish view --help"
+    opts="start add-info finish view --help pause"
     flags="--help -h"
 
     if [[ ${prev} == "start" ]] ; then 
@@ -28,6 +28,11 @@ _tcBase()
 
     if [[ ${prev} == "add-info" ]] ; then 
         _addInfo
+        return 0
+    fi
+
+    if [[ ${prev} == "pause" ]] ;  then
+        COMPREPLY=( $(compgen -W "${flags}" -- ${cur}) )
         return 0
     fi
 
