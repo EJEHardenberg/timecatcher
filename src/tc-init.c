@@ -37,6 +37,7 @@ void _tc_display_usage(const char * command){
 	const char * start_usage;
 	const char * add_info_usage;
 	const char * finish_usage;
+	const char * pause_usage;
 
 	general_usage = ""
 	"tcatch <command> [<args>]\n"
@@ -83,17 +84,27 @@ void _tc_display_usage(const char * command){
 	"To See this help dialog pass the --help or -h flag.\n"
 	;
 
+	pause_usage = ""
+	"tcatch pause[-h|--help]\n"
+	"\n"
+	"Pause the current task. If there is no current task then this command does\n"
+	"nothing\n"
+	"To See this help dialog pass the --help or -h flag"
+	;
+
 	if( command == NULL || strcasecmp(command, TC_HELP_COMMAND) == 0 )
 		printf("%s", general_usage);
-	else if( strcasecmp(command, TC_VIEW_COMMAND ) == 0) { 
+	else if( strcasecmp(command, TC_VIEW_COMMAND ) == 0) 
 		printf("%s\n", view_usage);
-	}else if( strcasecmp(command, TC_START_COMMAND ) ==0 ) {
+	else if( strcasecmp(command, TC_START_COMMAND ) ==0 ) 
 		printf("%s\n", start_usage);
-	}else if ( strcasecmp(command, TC_ADD_INFO_COMMAND ) == 0 ) {
+	else if ( strcasecmp(command, TC_ADD_INFO_COMMAND ) == 0 ) 
 		printf("%s\n", add_info_usage);
-	}else if ( strcasecmp(command, TC_FINISH_COMMAND ) == 0 ) {
+	else if ( strcasecmp(command, TC_FINISH_COMMAND ) == 0 ) 
 		printf("%s\n", finish_usage);
-	}else{
+	else if (strcasecmp(command, TC_PAUSE_COMMAND) == 0)
+		printf("%s\n", pause_usage);
+	else{
 		fprintf(stderr,"%s\n\n", "Command not recognized, usage:");
 		_tc_display_usage(NULL);
 	}
