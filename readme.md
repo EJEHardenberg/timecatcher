@@ -7,30 +7,32 @@ is simple.
 
 To begin a task quickly, simply run:
 
-    ./tcatch start <task title>
+    tcatch start <task title>
 
 To add information about the task you're currently working on, it's
 simple. 
 
-    ./tcatch add-info <information text>
+    tcatch add-info <information text>
 
 This information will be appended to the current description of the
 task. In this way, you can keep a running log of work done on the task
 for future reference.
 
-To end a task and commit a summary message
+To pause the current task:
 
-    ./tcatch finish <task title> 
-Then a text editor will pop up and allow you to create a simple summary
-message to go along with your task.
+    tcatch pause
+
+To end a task
+
+    tcatch finish <task title> 
 
 To view a previous task
 
-    ./tcatch view <task title>
+    tcatch view <task title>
 
 Or to view all tasks that have been done or are in progress:
 
-    ./tcatch view --all
+    tcatch view --all
 
 How To Install
 -----------------------------------------------------------------------
@@ -113,6 +115,5 @@ How to Contribute (If you're inclined)
 Improvements I want to see / plan on
 -----------------------------------------------------------------------
 
-1. Pause command instead of the -s to start
-2. Some type of timeline that makes use of the index file
-3. Integration with a git hook
+1. Some type of timeline that makes use of the index file
+2. Integration with a git hook
