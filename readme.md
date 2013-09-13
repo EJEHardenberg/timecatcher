@@ -117,3 +117,5 @@ Improvements I want to see / plan on
 
 1. Some type of timeline that makes use of the index file
 2. Integration with a git hook
+3. Delete a task from the history
+4. The ability to edit a single tasks history via it's sequence file in order to correct forgotten  'punches'
