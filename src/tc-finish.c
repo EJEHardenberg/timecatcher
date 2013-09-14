@@ -54,7 +54,7 @@ void tc_finish(int argc, char const * argv[]){
 		/* Set the state and times so the finished task will display correctly*/
 		working_task.state = TC_TASK_STARTED;
 		working_task.endTime = oldEndTime;
-		_tc_displayView(working_task,FALSE);
+		_tc_displayView(working_task,FALSE,TRUE);
 
 		/* If this task was the same as the current task, remove the current file */
 		if(strcmp(currentTask.taskName,working_task.taskName)==0)

@@ -53,7 +53,7 @@ void _tc_view_no_args(struct tc_task working_task){
 		return;
 	}
 
-	_tc_displayView(working_task,FALSE);
+	_tc_displayView(working_task,FALSE,FALSE);
 }
 
 void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, char const *argv[], char * taskName){
@@ -66,7 +66,7 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 		/* Display each task */
 		i=0;
 		for (i = _getAllTasks(allTasks); i >= 0; --i){
-			_tc_displayView(allTasks[i],verboseFlag);
+			_tc_displayView(allTasks[i],verboseFlag,FALSE);
 			free(allTasks[i].taskName);
 			free(allTasks[i].taskInfo);
 		}
@@ -82,7 +82,7 @@ void _tc_view_with_args(struct tc_task working_task, int verboseFlag, int argc, 
 		else if( working_task.state == TC_TASK_NOT_FOUND )
 			fprintf(stderr, "%s\n", "Could not find a current task to show.");
 		else
-			_tc_displayView(working_task,verboseFlag);	
+			_tc_displayView(working_task,verboseFlag,FALSE);	
 		
 	}
 }
@@ -125,7 +125,8 @@ int _getAllTasks(struct tc_task allTasks[]){
 	return i-1;
 }
 
-void _tc_displayView(struct tc_task working_task,int verbose){
+/*finishFlag is to handle displaying the right state when finishing a task */
+void _tc_displayView(struct tc_task working_task,int verbose, int finishFlag){
 	time_t hoursWorked,secondsWorked,daysWorked,minutesWorked;
 	char taskStartedText[TC_MAX_BUFF/2];
 	char taskEndedText[TC_MAX_BUFF/2];
@@ -152,9 +153,14 @@ void _tc_displayView(struct tc_task working_task,int verbose){
 	secondsWorked = abs( (time(0) - working_task.endTime)*( TC_TASK_STARTED == working_task.state ? 1 : 0) + working_task.pauseTime) - (minutesWorked*60L) - (hoursWorked*3600L) - (daysWorked*86400L);
 	
 	strftime(taskStartedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.startTime));
-
-
 	strftime(taskEndedText,TC_MAX_BUFF/2,"%c",localtime(&working_task.endTime));
+
+	/* This is a bit of a hack, but hey if we were to have
+	 * TC_TASK_FINISHED before this point then the calculation
+	 * would be off. */
+	if(finishFlag || finishFlag == TRUE){
+		working_task.state = TC_TASK_FINISHED;
+	}
 
 	printf(shortView, working_task.taskName, taskStartedText, daysWorked,hoursWorked,minutesWorked,secondsWorked,taskEndedText,_tc_stateToString(working_task.state));
 	if ( verbose == TRUE ) {
