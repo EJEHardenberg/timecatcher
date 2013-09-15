@@ -1,8 +1,8 @@
-tcatch: tc.o tc-task.o tc-start.o tc-view.o tc-info.o tc-finish.o
-	cc tc.o tc-init.o tc-dir.o tc-task.o tc-view.o tc-start.o tc-info.o tc-finish.o  tc-pause.o -o tcatch -lcrypto
+tcatch: tc.o tc-task.o tc-start.o tc-view.o tc-info.o tc-finish.o tc-delete.o
+	cc tc.o tc-init.o tc-dir.o tc-task.o tc-view.o tc-start.o tc-info.o tc-finish.o  tc-pause.o  tc-delete.o -o tcatch -lcrypto
 	rm *.o
 
-tc.o: src/tcatch.c tc-init.o tc-dir.o tc-view.o tc-info.o tc-finish.o tc-pause.o
+tc.o: src/tcatch.c tc-init.o tc-dir.o tc-view.o tc-info.o tc-finish.o tc-pause.o tc-delete.o
 	cc -c src/tcatch.c -o tc.o -ansi -pedantic -Wall -Wextra -Werror -g -I ./headers
 
 tc-init.o: src/tc-init.c headers/tc-init.h tc-dir.o
@@ -28,6 +28,9 @@ tc-finish.o: src/tc-finish.c headers/tc-finish.h tc-task.o tc-dir.o
 
 tc-pause.o: src/tc-pause.c headers/tc-pause.h tc-init.o tc-task.o tc-dir.o
 	cc -c src/tc-pause.c -o tc-pause.o -ansi -pedantic -Wall -Wextra -Werror -g -I ./headers	
+
+tc-delete.o: src/tc-delete.c headers/tc-delete.h tc-init.o tc-task.o tc-dir.o
+	cc -c src/tc-delete.c -o tc-delete.o -ansi -pedantic -Wall -Wextra -Werror -g -I ./headers	
 
 clean:
 	rm  tcatch
