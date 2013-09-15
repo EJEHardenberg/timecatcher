@@ -179,7 +179,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
     	} else {
     		/* Write out information to the file if there is any*/
     		fprintf(fp, "%s\n", structToWrite.taskName);
-    		if(structToWrite.taskInfo != NULL)
+    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,fileHash) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);
     		fclose(fp);
@@ -193,7 +193,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
     	} else {
     		/* Write out information to the file if there is any*/
 
-    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,structToWrite.taskName) == NULL)
+    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,fileHash) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);
     		fclose(fp);
