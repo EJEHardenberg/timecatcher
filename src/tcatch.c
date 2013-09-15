@@ -10,6 +10,7 @@
 #include "tc-info.h"
 #include "tc-finish.h"
 #include "tc-pause.h"
+#include "tc-delete.h"
 
 int main(int argc, char const *argv[]) {	
 	/* Determine what we've been asked to do */
@@ -43,6 +44,8 @@ int main(int argc, char const *argv[]) {
 			tc_finish(argc,argv);
 		else if (strcasecmp(argv[1], TC_PAUSE_COMMAND) == 0)
 			tc_pause(argc,argv);
+		else if (strcasecmp(argv[1], TC_DELETE_COMMAND)==0)
+			tc_delete(argc,argv);
 		else
 			fprintf(stderr, "%s\n", "Command  not recognized."), _tc_display_usage(NULL);
 	}

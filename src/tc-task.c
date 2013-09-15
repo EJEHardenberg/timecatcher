@@ -179,7 +179,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
     	} else {
     		/* Write out information to the file if there is any*/
     		fprintf(fp, "%s\n", structToWrite.taskName);
-    		if(structToWrite.taskInfo != NULL)
+    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,fileHash) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);
     		fclose(fp);
@@ -193,7 +193,7 @@ void _tc_task_write(struct tc_task structToWrite, char tcHomeDirectory[]){
     	} else {
     		/* Write out information to the file if there is any*/
 
-    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,structToWrite.taskName) == NULL)
+    		if(structToWrite.taskInfo != NULL && strstr(structToWrite.taskInfo,fileHash) == NULL)
     			fprintf(fp, "%s\n", structToWrite.taskInfo);
     		fflush(fp);
     		fclose(fp);
@@ -411,7 +411,8 @@ void _tc_task_read_byHashPath(char const * taskHash, struct tc_task * structToFi
 	}
 
 	/* The first line is the task name*/
-	fscanf(fp,"%s\n", taskName);
+	fgets(taskName,TC_MAX_BUFF,fp);
+	taskName[strlen(taskName)-1] = '\0'; /* Remove the newline read in*/
 	strcpy(structToFill->taskName,taskName);
 
 	fclose(fp);

@@ -76,6 +76,9 @@ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 
 echo "Pause the task with arguments (which doesn't do anything)"
 valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch pause arguments arguments
 
+#echo "Delete a task"
+#This is commented out because I don't care to enter y or n while running this script. I HAVE tested the deletion though and it is leak free
+#valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch delete pauseTest
 
 
 

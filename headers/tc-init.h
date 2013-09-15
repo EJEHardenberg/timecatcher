@@ -21,6 +21,7 @@
 	#define TC_SWITCH_LONG "--switch"
 	#define TC_SWITCH_SHORT "-s"
 	#define TC_PAUSE_COMMAND "pause"
+	#define TC_DELETE_COMMAND "delete"
 	#ifndef TRUE
 		#define TRUE 1
 	#endif

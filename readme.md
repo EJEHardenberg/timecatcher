@@ -34,6 +34,10 @@ Or to view all tasks that have been done or are in progress:
 
     tcatch view --all
 
+To remove a task entirely perform a delete command  (you will be asked to confirm)
+
+    tcatch delete <task title>
+
 How To Install
 -----------------------------------------------------------------------
 From github:
@@ -117,3 +121,4 @@ Improvements I want to see / plan on
 
 1. Some type of timeline that makes use of the index file
 2. Integration with a git hook
+4. The ability to edit a single tasks history via it's sequence file in order to correct forgotten  'punches'
