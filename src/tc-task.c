@@ -411,7 +411,8 @@ void _tc_task_read_byHashPath(char const * taskHash, struct tc_task * structToFi
 	}
 
 	/* The first line is the task name*/
-	fscanf(fp,"%s\n", taskName);
+	fgets(taskName,TC_MAX_BUFF,fp);
+	taskName[strlen(taskName)-1] = '\0'; /* Remove the newline read in*/
 	strcpy(structToFill->taskName,taskName);
 
 	fclose(fp);
