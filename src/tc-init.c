@@ -38,6 +38,7 @@ void _tc_display_usage(const char * command){
 	const char * add_info_usage;
 	const char * finish_usage;
 	const char * pause_usage;
+	const char * delete_usage;
 
 	general_usage = ""
 	"tcatch <command> [<args>]\n"
@@ -46,7 +47,9 @@ void _tc_display_usage(const char * command){
 	"\tstart		Start a new task\n"
 	"\tadd-info 	Append information about the current task\n"
 	"\tfinish		Finish a task that has been started\n"
-	"\tview		View the current task or a list of all tasks\n"
+	"\tview			View the current task or a list of all tasks\n"
+	"\tpause 		Pause the current task.\n"
+	"\tdelete 		Delete a task by name. Permanently.\n"
 	"\n"
 	"See tcatch <command> --help for information on a specific command\n"
 	"\n";
@@ -89,7 +92,15 @@ void _tc_display_usage(const char * command){
 	"\n"
 	"Pause the current task. If there is no current task then this command does\n"
 	"nothing\n"
-	"To See this help dialog pass the --help or -h flag"
+	"To See this help dialog pass the --help or -h flag\n"
+	;
+
+	delete_usage = ""
+	"tcatch delete [-h|--help]\n"
+	"Delete a task. This is permanent and there is no recovering the deleted task\n"
+	"Before deleting you will be asked to enter y or n to confirm.\n"
+	"\n"
+	"To see this help dialog pass the --help or -h flag\n"
 	;
 
 	if( command == NULL || strcasecmp(command, TC_HELP_COMMAND) == 0 )
@@ -104,6 +115,8 @@ void _tc_display_usage(const char * command){
 		printf("%s\n", finish_usage);
 	else if (strcasecmp(command, TC_PAUSE_COMMAND) == 0)
 		printf("%s\n", pause_usage);
+	else if (strcasecmp(command, TC_DELETE_COMMAND) == 0 )
+		printf("%s\n", delete_usage);
 	else{
 		fprintf(stderr,"%s\n\n", "Command not recognized, usage:");
 		_tc_display_usage(NULL);

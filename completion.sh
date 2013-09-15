@@ -8,7 +8,7 @@ _tcBase()
     #
     #  The basic options we'll complete.
     #
-    opts="start add-info finish view --help pause"
+    opts="start add-info finish view --help pause delete"
     flags="--help -h"
 
     if [[ ${prev} == "start" ]] ; then 
