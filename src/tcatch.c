@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
 		else if (strcasecmp( argv[1], TC_FINISH_COMMAND ) == 0 ) 
 			tc_finish(argc,argv);
 		else if (strcasecmp(argv[1], TC_PAUSE_COMMAND) == 0)
-			tc_pause(argc,argv);
+			_tc_display_usage(argv[1]);
 		else if (strcasecmp(argv[1], TC_DELETE_COMMAND)==0)
 			tc_delete(argc,argv);
 		else
