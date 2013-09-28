@@ -77,7 +77,7 @@ void tc_delete(int argc,const char * argv[]){
 }
 
 int _tc_askForConfirm(){
-	char yn;
+	int yn;
 
 	fprintf(stdout, "Are you sure? [y|n]: " );
 	yn = getc(stdin);

@@ -22,6 +22,7 @@ void tc_pause(int argc, char const *argv[] ){
 
 	/* If the current task is active (not paused) then pause it */
 	_find_current_task(&working_task);
+	
 	if(working_task.state != TC_TASK_NOT_FOUND){
 			/* Cant switch to the current task */
 		if(strcmp(working_task.taskName,taskName)==0){
@@ -48,7 +49,7 @@ void tc_pause(int argc, char const *argv[] ){
 
 		}			
 	}else{
-		fprintf(stderr, "%s\n", "No current task to pause.\nUsage:\n"),_tc_display_usage(argv[1]);
+		fprintf(stderr, "%s\n", "No current task to pause.\n");
 	}
 	free(working_task.taskInfo);
 	free(working_task.taskName);

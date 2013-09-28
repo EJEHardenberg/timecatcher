@@ -96,6 +96,11 @@ Running make should create the program. To verify 0 memory leaks:
 
     valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./tcatch
  
+If you run m5sum you should get:
+
+    md5sum tcatch 
+    e9baa261abbdb88361495bd02d65c4ee  tcatch
+
 
 How to Contribute (If you're inclined)
 -----------------------------------------------------------------------
