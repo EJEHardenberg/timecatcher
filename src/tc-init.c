@@ -47,7 +47,7 @@ void _tc_display_usage(const char * command){
 	"\tstart		Start a new task\n"
 	"\tadd-info 	Append information about the current task\n"
 	"\tfinish		Finish a task that has been started\n"
-	"\tview			View the current task or a list of all tasks\n"
+	"\tview		View the current task or a list of all tasks\n"
 	"\tpause 		Pause the current task.\n"
 	"\tdelete 		Delete a task by name. Permanently.\n"
 	"\n"
